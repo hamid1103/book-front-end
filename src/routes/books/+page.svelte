@@ -13,6 +13,14 @@
     let lastTarget = $derived(Math.ceil(meta.total / meta.limit))
     let previousTarget = $derived(meta.page-1)
 
+    const coverColors = ['bg-accent', 'bg-accent-sage', 'bg-accent-blue', 'bg-accent-brown'];
+
+    function coverColor(id: string) {
+        let hash = 0;
+        for (const char of id) hash = (hash * 31 + char.charCodeAt(0)) | 0;
+        return coverColors[Math.abs(hash) % coverColors.length];
+    }
+
     $effect(()=>{
         console.log(readingList)
     })
@@ -44,23 +52,29 @@
     }
 </script>
 <div class="w-full h-full flex justify-center bg-ivory">
-    <div class="w-2/5 h-fit items-center align-middle flex flex-col space-y-2 p-2">
+    <div class="w-full md:w-3/4 lg:w-2/5 h-fit items-center align-middle flex flex-col space-y-2 p-2">
 
         {#each books as book}
             <!--href="/books/{book._id}"-->
-            <div  class="p-2 w-full h-32 rounded-md bg-surface border-border border-2 flex justify-between">
-                <div class="flex space-x-2">
-                    <!--Image (place) holder... We don't have images-->
-                    <div class="border bg-gray-400 w-24"></div>
+            <div class="group hover:border-accent transition duration-100 p-2 w-full min-h-32 rounded-md bg-surface border-border border-2 flex justify-between">
+                <div class="flex space-x-2 min-w-0 flex-1">
+                    <!--We don't have images-->
+                    <a href="/books/{book._id}" class="shrink-0 w-20 h-30 md:w-24 md:h-36 rounded-r-md rounded-l-sm border-l-8 border-black/20 shadow-md p-2 flex flex-col justify-between {coverColor(book._id)}">
+                        <span class="font-display text-ivory text-sm font-bold leading-tight line-clamp-4">{book.title}</span>
+                        <span class="font-body text-ivory/80 text-[10px] truncate">{book.author}</span>
+                    </a>
 
-                    <div class="flex flex-col justify-end">
-                        <span class="font-sans text-ink text-lg">{book.title}</span>
+                    <div class="flex flex-col min-w-0">
+                        <a class="hover:cursor-pointer" href="/books/{book._id}">
+                            <span class="group-hover:text-accent font-bold transition duration-75 font-sans text-ink text-base md:text-lg leading-tight">{book.title}</span>
+                        </a>
                         <span class="font-sans text-ink-muted text-md italic">{book.author}</span>
+                        <p class="font-sans text-ink text-md italic truncate">{book.description}</p>
                     </div>
                 </div>
 
-                <div class="h-full flex flex-col">
-                    <div class="w-12 h-12 rounded-md">
+                <div class="h-full flex flex-col shrink-0">
+                    <div class="w-9 h-9 md:w-12 md:h-12 rounded-md">
                         {#if readingList}
                             <Heart action={()=>{
                                 updateRLEntry(book._id,readingList.includes(book._id))
@@ -72,7 +86,7 @@
             </div>
         {/each}
 
-        <div class="w-full h-10 bg-surface flex justify-between rounded-md border-border border-2 sticky bottom-0 z-0">
+        <div class="w-full h-10 bg-surface flex justify-between items-center gap-1 px-1 text-sm md:text-base rounded-md border-border border-2 sticky bottom-0 z-0">
 
             {#each [
                 {label: '«', target: 1, disabled: meta.page <= 1, title: 'First page'},
@@ -82,12 +96,12 @@
                         type="button"
                         title={btn.title}
                         disabled={btn.disabled}
-                        class="rounded-md border border-ink-700 px-2 py-1 text-ink-300 hover:border-accent-cyan hover:text-accent-cyan disabled:opacity-30 disabled:pointer-events-none cursor-pointer"
+                        class="rounded-md border border-ink-700 px-1.5 md:px-2 py-0.5 md:py-1 whitespace-nowrap text-ink-300 hover:border-accent-cyan hover:text-accent-cyan disabled:opacity-30 disabled:pointer-events-none cursor-pointer"
                         onclick={() => goToPage(btn.target)}
                 >{btn.label}</button>
             {/each}
 
-            <span class="font-display">Page {meta.page} of {Math.ceil(meta.total / meta.limit)}</span>
+            <span class="font-display whitespace-nowrap">Page {meta.page} of {Math.ceil(meta.total / meta.limit)}</span>
 
             {#each [
                 {label: 'Next ›', target: nextTarget, disabled: meta.page >= lastTarget, title: 'Next page'},
@@ -97,7 +111,7 @@
                         type="button"
                         title={btn.title}
                         disabled={btn.disabled}
-                        class="rounded-md border border-ink-700 px-2 py-1 text-ink-300 hover:border-accent-cyan hover:text-accent-cyan disabled:opacity-30 disabled:pointer-events-none cursor-pointer"
+                        class="rounded-md border border-ink-700 px-1.5 md:px-2 py-0.5 md:py-1 whitespace-nowrap text-ink-300 hover:border-accent-cyan hover:text-accent-cyan disabled:opacity-30 disabled:pointer-events-none cursor-pointer"
                         onclick={() => goToPage(btn.target)}
                 >{btn.label}</button>
             {/each}
