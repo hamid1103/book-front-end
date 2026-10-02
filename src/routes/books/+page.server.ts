@@ -1,20 +1,26 @@
+import {error, fail, redirect} from '@sveltejs/kit';
+import { BACKEND_URL } from '$lib/server/api';
 import type { PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async ({ params }) => {
-
-    const req = await fetch("http://localhost:3000/books");
-    if(req.status > 400 || req.status > 500) {
-        return {
-            error: req.statusText,
-            code: req.status,
-        }
+export const load: PageServerLoad = async ({ url, fetch }) => {
+    const page = Number(url.searchParams.get('page')) || 1;
+    const limit = Number(url.searchParams.get('limit')) || 10;
+    const req = await fetch(`${BACKEND_URL}/books?qpage=${page}&qlimit=${limit}`);
+    if (!req.ok) {
+        error(req.status, req.statusText);
     }
-    const books: [{
-        "_id": string,
-        "title": string,
-        "author": string
-    }] = await req.json();
+    const {books, meta} = await req.json();
+
+    const readingListData = await fetch(`${BACKEND_URL}/readinglist?onlyId=true`)
+    if(!readingListData.ok)
+    {
+        error(readingListData.status, readingListData.statusText);
+    }
+    const rld = await readingListData.json();
+
     return {
-        books: books
+        books: books,
+        meta: meta,
+        readingList: rld.book
     };
-};
+}
