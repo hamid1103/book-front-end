@@ -14,7 +14,7 @@ export const load: PageServerLoad = async ({ url, fetch, locals }) => {
     const data = {
         books,
         meta,
-        readingList: null
+        readingList: null as string[] | null
     }
 
     if(locals.user){

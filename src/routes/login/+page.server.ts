@@ -9,7 +9,7 @@ export const actions = {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email: data.get('email'), password: data.get('password') })
         });
-        if (!res.ok) return fail(401, { error: 'Invalid credentials' });
+        if (!res.ok) return fail(401, { error: 'Onjuist e-mailadres of wachtwoord.', email: data.get('email')?.toString() ?? '' });
 
         const { access_token } = await res.json();
         cookies.set('jwt', access_token, {

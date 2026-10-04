@@ -2,7 +2,7 @@
     import { page } from "$app/state";
     import { goto } from "$app/navigation";
     import type {PageProps} from './$types';
-    import Heart from "$lib/components/Heart.svelte";
+    import BookCard from "$lib/components/BookCard.svelte";
     let {data}: PageProps = $props();
     // $derived (not $state) so these update when load reruns after goto
     let meta = $derived(data.meta)
@@ -12,14 +12,6 @@
     let nextTarget = $derived(meta.page+1)
     let lastTarget = $derived(Math.ceil(meta.total / meta.limit))
     let previousTarget = $derived(meta.page-1)
-
-    const coverColors = ['bg-accent', 'bg-accent-sage', 'bg-accent-blue', 'bg-accent-brown'];
-
-    function coverColor(id: string) {
-        let hash = 0;
-        for (const char of id) hash = (hash * 31 + char.charCodeAt(0)) | 0;
-        return coverColors[Math.abs(hash) % coverColors.length];
-    }
 
     $effect(()=>{
         console.log(readingList)
@@ -52,39 +44,15 @@
     }
 </script>
 <div class="w-full h-full flex justify-center bg-ivory">
-    <div class="w-full md:w-3/4 lg:w-2/5 h-fit items-center align-middle flex flex-col space-y-2 p-2">
+    <div class="w-full max-w-5xl h-fit items-center align-middle flex flex-col space-y-4 px-4 py-6 md:py-8">
 
-        {#each books as book}
-            <!--href="/books/{book._id}"-->
-            <div class="group hover:border-accent transition duration-100 p-2 w-full min-h-32 rounded-md bg-surface border-border border-2 flex justify-between">
-                <div class="flex space-x-2 min-w-0 flex-1">
-                    <!--We don't have images-->
-                    <a href="/books/{book._id}" class="shrink-0 w-20 h-30 md:w-24 md:h-36 rounded-r-md rounded-l-sm border-l-8 border-black/20 shadow-md p-2 flex flex-col justify-between {coverColor(book._id)}">
-                        <span class="font-display text-ivory text-sm font-bold leading-tight line-clamp-4">{book.title}</span>
-                        <span class="font-body text-ivory/80 text-[10px] truncate">{book.author}</span>
-                    </a>
-
-                    <div class="flex flex-col min-w-0">
-                        <a class="hover:cursor-pointer" href="/books/{book._id}">
-                            <span class="group-hover:text-accent font-bold transition duration-75 font-sans text-ink text-base md:text-lg leading-tight">{book.title}</span>
-                        </a>
-                        <span class="font-sans text-ink-muted text-md italic">{book.author}</span>
-                        <p class="font-sans text-ink text-md italic truncate">{book.description}</p>
-                    </div>
-                </div>
-
-                <div class="h-full flex flex-col shrink-0">
-                    <div class="w-9 h-9 md:w-12 md:h-12 rounded-md">
-                        {#if readingList}
-                            <Heart action={()=>{
-                                updateRLEntry(book._id,readingList.includes(book._id))
-                                //console.log("HEART CLICKED. FAV: " + readingList.includes(book._id))
-                            }} filled={readingList.includes(book._id)}></Heart>
-                        {/if}
-                    </div>
-                </div>
-            </div>
-        {/each}
+        <div class="w-full grid grid-cols-1 md:grid-cols-2 gap-4">
+            {#each books as book (book._id)}
+                <BookCard {book}
+                          inReadingList={readingList?.includes(book._id)}
+                          onToggle={readingList ? () => updateRLEntry(book._id, readingList?.includes(book._id) ?? false) : undefined}/>
+            {/each}
+        </div>
 
         <div class="w-full h-10 bg-surface flex justify-between items-center gap-1 px-1 text-sm md:text-base rounded-md border-border border-2 sticky bottom-0 z-0">
 

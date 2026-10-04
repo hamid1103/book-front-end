@@ -1,14 +1,7 @@
 <script lang="ts">
     // With this setup, I can dynamically add carousel slides. Not sure why I would want that :P
     import {GeneralState} from "$lib/GeneralState.svelte.ts";
-
-    const coverColors = ['bg-accent', 'bg-accent-sage', 'bg-accent-blue', 'bg-accent-brown'];
-
-    function coverColor(id: string) {
-        let hash = 0;
-        for (const char of id) hash = (hash * 31 + char.charCodeAt(0)) | 0;
-        return coverColors[Math.abs(hash) % coverColors.length];
-    }
+    import BookCover from "$lib/components/BookCover.svelte";
 
     let holder: HTMLElement = $state();
     let {data} = $props();
@@ -101,14 +94,24 @@
             {#each advice as book}
                 <div class="w-full h-full flex justify-center items-center p-2 shrink-0 bg-surface">
                     <div class="w-full px-8 md:px-0 md:w-3/4 flex gap-4">
-                        <a href="/books/{book._id}"
-                           class="shrink-0 w-24 h-36 md:w-36 md:h-56 rounded-r-md rounded-l-sm border-l-8 border-black/20 shadow-md p-2 flex flex-col justify-between {coverColor(book._id)}">
-                            <span class="font-display text-ivory text-lg font-bold leading-tight line-clamp-4">{book.title}</span>
-                            <span class="font-body text-ivory/80 text-[10px] truncate">{book.author}</span>
-                        </a>
+                        <BookCover {book} size="lg"/>
                         <div class="flex flex-col justify-start font-display min-w-0">
                             <h2 class="text-lg md:text-2xl font-display">Heb je deze al geprobeert?</h2>
-                            <span class="text-sm md:text-base line-clamp-[10] md:line-clamp-none">{book.description}</span>
+                            <span class="text-sm md:text-base line-clamp-[10] md:line-clamp-none">Beschrijving: {book.description}</span>
+                            {#if book.motivation}
+                                <span class="text-sm md:text-base italic text-accent mt-1 line-clamp-3">{book.motivation}</span>
+                            {/if}
+                            <div class="flex flex-wrap gap-1.5 mt-auto pt-3">
+                                {#each book.readingLevel ?? [] as level}
+                                    <span class="text-xs font-semibold font-body px-2 py-0.5 rounded-full bg-tan-bg text-tan-text">{level}</span>
+                                {/each}
+                                {#each book.genre ?? [] as genre}
+                                    <span class="text-xs font-body px-2 py-0.5 rounded-full bg-sage-bg text-sage-text border border-sage-border">{genre}</span>
+                                {/each}
+                                {#each book.tags ?? [] as tag}
+                                    <span class="text-xs font-body px-2 py-0.5 rounded-full border border-border-soft text-ink-muted">#{tag}</span>
+                                {/each}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -116,13 +119,13 @@
         </div>
 
         <button
-                class="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-ivory/80 hover:bg-ivory text-ink font-bold cursor-pointer"
+                class="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full border-2 border-accent bg-ivory/80 hover:bg-ivory text-ink font-bold cursor-pointer"
                 onclick={prev}
                 aria-label="Vorige"
         >‹
         </button>
         <button
-                class="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-ivory/80 hover:bg-ivory text-ink font-bold cursor-pointer"
+                class="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full border-2 border-accent bg-ivory/80 hover:bg-ivory text-ink font-bold cursor-pointer"
                 onclick={next}
                 aria-label="Volgende"
         >›
