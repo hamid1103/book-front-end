@@ -55,6 +55,7 @@
                         {#if user}
                             <p class="font-display font-bold text-ink">{user.userName}</p>
                             <p class="text-sm text-ink-muted truncate">{user.email}</p>
+                            <a  class="text-accent cursor-pointer text-sm md:text-md font-display">Uitloggen</a>
                         {:else}
                             <p class="text-sm text-ink-muted mb-3">Je bent niet ingelogd.</p>
                             <a href="/login" class="block text-center rounded-md bg-accent hover:bg-accent-hover text-ivory font-semibold py-1.5">

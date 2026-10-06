@@ -9,11 +9,11 @@ Legend: ✅ done · 🟡 partly done · ❌ not done
 
 | Requirement | Status |
 | --- | --- |
-| FR1 – Fill in a reading profile | 🟡 nearly done |
-| FR2 – View and change the profile | 🟡 |
+| FR1 – Fill in a reading profile | ✅ |
+| FR2 – View and change the profile | ✅ |
 | FR3 – Receive reading advice | ✅ (simulated matching) |
-| FR4 – Browse the catalogue | 🟡 |
-| FR5 – Keep a reading list | 🟡 |
+| FR4 – Browse the catalogue | ✅ (length simulated) |
+| FR5 – Keep a reading list | ✅ (teacher part: see FR6) |
 | FR6 – Teachers can view reading lists | ❌ |
 | NFR1 – Component architecture | 🟡 |
 | NFR2 – README | ❌ |
@@ -27,20 +27,19 @@ Legend: ✅ done · 🟡 partly done · ❌ not done
 
 ## Functional requirements
 
-### FR1 – Fill in a reading profile 🟡 (nearly done)
+### FR1 – Fill in a reading profile ✅
 
 - ✅ 4 questions: level, motivation, length, themes (minimum is 3).
 - ✅ Required fields are marked with `*`, and the server rejects an incomplete profile (`src/routes/leesprofiel/+page.server.ts:30-35`).
 - ✅ You get a confirmation after saving, then a redirect.
-- ✅ Answers are kept in localStorage if you navigate away.
-- 🟡 localStorage is only read when there's **no** server profile yet (`src/routes/leesprofiel/+page.svelte:31`). If you're editing an existing profile and leave, your changes are lost.
-- 🟡 The page has no login guard. A logged-out user can fill in the whole form and only gets an error when saving.
+- ✅ Unsaved answers are kept as a per-user draft in localStorage, for new **and** existing profiles. A draft is only restored when it was based on the profile that's currently saved; outdated drafts are ignored. A notice with a "Wijzigingen weggooien" button shows when a draft is restored.
+- ✅ The page redirects logged-out users to `/login`.
 
-### FR2 – View and change the profile 🟡
+### FR2 – View and change the profile ✅
 
 - ✅ A saved profile is loaded back into the form, and updates go through `PUT`.
 - ✅ Changes are used in the next advice (see FR3).
-- ❌ No confirm/cancel prompt when you leave with unsaved changes. This needs SvelteKit's `beforeNavigate` plus a dirty check.
+- ✅ Leaving with unsaved changes asks for confirmation (`beforeNavigate`). "Unsaved" means the form differs from the last saved profile; closing the tab shows the browser's own dialog.
 
 ### FR3 – Receive reading advice ✅ (simulated matching)
 
@@ -58,19 +57,26 @@ The catalogue data is too thin for real matching: 183 items, no genres, only ~40
 - ✅ Profile changes are used in the next advice (resolves part of FR2).
 - The functions in `AdviceService.ts` are pure, ready for unit tests (NFR3).
 
-### FR4 – Browse the catalogue 🟡
+### FR4 – Browse the catalogue ✅ (length simulated)
 
-- ✅ Pagination with first/previous/next/last buttons.
-- 🟡 It shows "Page X of Y" but not the **total number of results** (`meta.total` is available, it just isn't displayed).
-- ❌ **No filters at all** (level, genre, topic, length), and no way to combine or reset them. The backend `/books` endpoint has no filter parameters either.
+- ✅ Pagination with first/previous/next/last buttons, showing "Resultaten X-Y van de Z" and the total number of results.
+- ✅ Filters on `/books`: title search, level (`2F`/`3F`/`3F+`), themes (book `tags`, list from `/books/genres`) and length.
+  - There is no length in the data, so length maps onto `materialType`, the same way as in `AdviceService` (Kort = articles/blogs, Middel = magazines/poetry, Lang = books).
+  - There are no genres in the data either, so themes/tags cover both "genre" and "topic".
+- ✅ Filters combine (AND between groups, OR within a group), live in the URL (shareable, survive pagination) and reset with "Filters wissen". A new filter starts at page 1.
+- ✅ The filter form is a plain GET form, so it also works without JavaScript; checkboxes apply right away when JS is on.
+- ✅ An empty result shows "Geen boeken gevonden".
 - ✅ Each book shows its title and description.
 
-### FR5 – Keep a reading list 🟡
+### FR5 – Keep a reading list ✅ (teacher part: see FR6)
 
-- ✅ You can add books from the catalogue with the heart button.
-- ❌ You can't add from the advice page: `/advies` renders `<BookCard {book}/>` without `onToggle`.
-- ❌ **No read/unread status.** The `ReadingList` model is just `book: ObjectId[]`, so a status has nowhere to live.
+- ✅ You can add books from the catalogue (`/books`) and from the advice page (`/advies`) with the heart button. The heart only shows for logged-in users.
+- ✅ Read status per book: "Nog niet gelezen", "Bezig" or "Gelezen" (`NotRead`/`Reading`/`Read`), stored in the reading list's `status` map and set through `PATCH /readinglist`.
+  - `ReadingStatusPicker` (a radio group in a `<fieldset>`) sits on every card in `/Leeslijst`. It updates right away and rolls back if the request fails.
+  - `/Leeslijst` can be filtered by status (with counts) and shows "X van Y gelezen".
+- ✅ Removing a book from the list also drops its status (backend).
 - ✅ The list is personal (filtered on `userID`).
+- The client calls live in `$lib/readingList.ts`, shared by `/books`, `/advies` and `/Leeslijst`.
 - ❌ Teacher access is missing (see FR6).
 
 ### FR6 – Teachers can view reading lists ❌
@@ -137,7 +143,7 @@ There's no Prettier or ESLint config, so there's also nothing that shows a style
 - ❌ No role-based authorization. Roles exist in the database but are never checked.
 - Frontend:
   - ✅ `/Leeslijst` redirects to `/login`.
-  - ❌ `/leesprofiel` has no guard.
+  - ✅ `/leesprofiel` redirects to `/login`.
   - ❌ There's no logout, and no registration even though the page title says "Login / Registreren".
 
 ### NFR7 – Appropriate data storage 🟡
@@ -151,12 +157,12 @@ There's no Prettier or ESLint config, so there's also nothing that shows a style
 ## Suggested order
 
 1. ~~**FR3** – matching with a reason per book.~~ Done.
-2. **FR5** – add a read status (a good moment to move the reading list to Postgres for NFR7), and the heart on the advice page.
-3. **FR4** – filters on `/books`, in both backend and frontend, plus the total result count.
+2. ~~**FR5** – add a read status, and the heart on the advice page.~~ Done (the reading list is still in MongoDB, see NFR7).
+3. ~~**FR4** – filters on `/books`, in both backend and frontend, plus the total result count.~~ Done.
 4. **FR6 + role checks** – the biggest feature, and it's missing completely.
 5. Smaller fixes:
    - [ ] NFR5: Heart → `<button>`, carousel pause, fieldsets, `lang="nl"`
-   - [ ] FR2: unsaved-changes prompt
+   - [x] FR2: unsaved-changes prompt
    - [ ] NFR4: wire up the dead homepage buttons
    - [ ] NFR2: README, Prettier/ESLint
    - [ ] NFR3: Vitest

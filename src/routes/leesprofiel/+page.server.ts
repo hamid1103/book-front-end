@@ -1,8 +1,12 @@
 import type {Actions, PageServerLoad} from "./$types";
 import {BACKEND_URL} from "$lib/server/api";
-import {error, fail} from "@sveltejs/kit";
+import {error, fail, redirect} from "@sveltejs/kit";
 
-export const load: PageServerLoad = async ({fetch}) =>{
+export const load: PageServerLoad = async ({fetch, locals}) =>{
+    if(!locals.user)
+    {
+        throw redirect(307, "/login")
+    }
     const tagsResponse = await fetch(`${BACKEND_URL}/books/genres`);
     if (!tagsResponse.ok) error(tagsResponse.status, tagsResponse.statusText);
     const tags: string[] = await tagsResponse.json();

@@ -1,6 +1,7 @@
 import {BACKEND_URL} from "$lib/server/api";
 import {error, redirect} from "@sveltejs/kit";
 import type {PageServerLoad} from "./$types";
+import type {Book, ReadingList} from "$lib/types";
 
 export const load: PageServerLoad = async ({fetch, locals})=>{
     if(!locals.user)
@@ -14,8 +15,9 @@ export const load: PageServerLoad = async ({fetch, locals})=>{
         console.log("reading list", readingListData.ok);
         error(readingListData.status, readingListData.statusText);
     }
-    const rld = await readingListData.json();
+    const rld: ReadingList<Book> = await readingListData.json();
     return {
-        readingList: rld.book
+        readingList: rld.book,
+        readStatus: rld.status,
     };
 }

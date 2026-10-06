@@ -1,7 +1,7 @@
 <script lang="ts">
-    import {onMount} from "svelte";
+    import {onMount, untrack} from "svelte";
     import {enhance} from "$app/forms";
-    import {goto} from "$app/navigation";
+    import {beforeNavigate, goto} from "$app/navigation";
     let {data, form} = $props()
 
     type Profile = {
@@ -11,44 +11,101 @@
         genre: string[]
     }
 
-    let ProfileData: Profile = $state({
+    //What ends up in localStorage. `base` is the saved profile the draft started from
+    type Draft = {base: string, profile: Profile}
+
+    const defaults: Profile = {
         languageLevel: "A2",
         ReadingMotivation: "ForSchool",
         length: "Short",
         genre: []
-    })
+    }
+
+    //Only keep the form fields (the server also sends _id, userID, __v) and sort the genres,
+    //so ticking a theme off and on again doesn't count as a change
+    function serialize(p: Partial<Profile>): string {
+        const profile = {...defaults, ...p}
+        return JSON.stringify({
+            languageLevel: profile.languageLevel,
+            ReadingMotivation: profile.ReadingMotivation,
+            length: profile.length,
+            genre: [...profile.genre].sort(),
+        })
+    }
+
+    let ProfileData: Profile = $state(structuredClone(defaults))
 
     //Use "update" when the server already has a profile, otherwise "create"
     let SDExists = $derived(!!data.readingList)
+    //The last saved version of the profile, the form is "dirty" when it differs from this.
+    //Only read from data once, after that it's updated on save
+    let savedProfile = $state(untrack(() => serialize(data.readingList ?? defaults)))
+    let HasUnsavedUpdates = $derived(serialize(ProfileData) !== savedProfile)
+    //Per user, so someone else on the same computer doesn't get your draft
+    let storageKey = $derived(`ReadingProfileForm:${data.user?.id}`)
+    let draftRestored = $state(false)
     let submitting = $state(false)
     let success = $state(false)
     let redirectTimer: ReturnType<typeof setTimeout> | undefined
     //Prevents the effect from overwriting localStorage with the defaults before we've loaded it
     let loaded = $state(false)
 
-    onMount(()=>{
-        //Server Data ALWAYS goes above.
-        if(data.readingList)
+    beforeNavigate((e)=>{
+        if(!HasUnsavedUpdates) return
+        //Closing the tab or typing a new URL can't use confirm(), cancelling shows the browser's own dialog
+        if(e.type === "leave")
         {
-            Object.assign(ProfileData, data.readingList)
-            loaded = true
-        }else{
-            const storageProfile: Partial<Profile> | null = JSON.parse(localStorage.getItem("ReadingProfileForm") ?? "null")
-            if(storageProfile){
-                //Merge with defaults so older saved profiles missing a field don't break the form
-                Object.assign(ProfileData, storageProfile)
-            }
-            loaded = true
+            e.cancel()
+            return
         }
+        //The draft is already in localStorage, so leaving doesn't lose anything
+        if(!confirm("Je leesprofiel is nog niet opgeslagen. Je wijzigingen blijven bewaard als concept. Toch weggaan?"))
+        {
+            e.cancel()
+        }
+    })
+
+    onMount(()=>{
+        Object.assign(ProfileData, JSON.parse(savedProfile))
+
+        //A draft only wins when it was made on top of the profile that's saved now.
+        //If the profile was saved somewhere else in the meantime, the draft is outdated
+        const draft = readDraft()
+        if(draft && draft.base === savedProfile && serialize(draft.profile) !== savedProfile)
+        {
+            Object.assign(ProfileData, draft.profile)
+            draftRestored = true
+        }
+        loaded = true
+
         //Don't redirect if the user already navigated away on their own
         return () => clearTimeout(redirectTimer)
     })
 
-    //Automatically triggers when anything in ProfileData changes (JSON.stringify reads every field, so it tracks all of them).
-    //Only READ state in here; writing to ProfileData inside this effect would re-trigger it forever.
+    function readDraft(): Draft | null {
+        try {
+            return JSON.parse(localStorage.getItem(storageKey) ?? "null")
+        } catch {
+            //Old format or broken JSON, treat it as no draft
+            return null
+        }
+    }
+
+    function discardDraft() {
+        Object.assign(ProfileData, JSON.parse(savedProfile))
+        draftRestored = false
+    }
+
+    //Keeps the draft in localStorage in sync with the form, and removes it once nothing differs from the saved profile
     $effect(()=>{
-        const json = JSON.stringify(ProfileData)
-        if(loaded) localStorage.setItem("ReadingProfileForm", json)
+        if(!loaded) return
+        if(HasUnsavedUpdates)
+        {
+            const draft: Draft = {base: savedProfile, profile: $state.snapshot(ProfileData)}
+            localStorage.setItem(storageKey, JSON.stringify(draft))
+        }else{
+            localStorage.removeItem(storageKey)
+        }
     })
 </script>
 
@@ -61,8 +118,11 @@
               return async ({result, update})=>{
                   submitting = false
                   if(result.type === "success"){
-                      success = true
-                      redirectTimer = setTimeout(()=>goto("/advies"), 1500)
+                      success = true;
+                      //The form now matches the saved profile, so the draft gets removed and the prompt won't fire
+                      savedProfile = serialize(ProfileData);
+                      draftRestored = false;
+                      redirectTimer = setTimeout(()=>goto("/advies"), 1500);
                   }else{
                       //reset: false keeps the bound inputs in sync with ProfileData
                       await update({reset: false})
@@ -113,6 +173,14 @@
                 {/each}
             </div>
         </div>
+        {#if draftRestored && !success}
+            <div class="w-full p-3 rounded-lg border-2 border-accent bg-tan-bg text-ink font-body flex flex-col md:flex-row md:items-center justify-between gap-2" role="status">
+                <span class="font-bold">Je niet-opgeslagen wijzigingen van de vorige keer zijn teruggezet.</span>
+                <button type="button" onclick={discardDraft} class="border-2 border-accent px-3 py-1 font-bold cursor-pointer hover:bg-surface transition duration-150">
+                    Wijzigingen weggooien
+                </button>
+            </div>
+        {/if}
         {#if success}
             <div class="w-full p-3 rounded-lg border-2 border-green-600 bg-green-100 text-green-800 font-body font-bold md:text-2xl text-xl text-center" role="status">
                 Je leesprofiel is opgeslagen! Je wordt doorgestuurd naar je leesadvies...

@@ -42,9 +42,9 @@
                 <h1 class="text-2xl md:text-4xl font-bold font-display">Hoi {GeneralState.user.userName}, klaar voor je volgende
                     boek?</h1>
                 <div class="flex flex-col sm:flex-row gap-3 md:gap-14 font-display">
-                    <button class="text-center hover:cursor-pointer bg-accent p-2 hover:bg-accent-hover border-accent hover:border-accent-hover border text-white transition duration-150">
+                    <a href="/advies" class="text-center hover:cursor-pointer bg-accent p-2 hover:bg-accent-hover border-accent hover:border-accent-hover border text-white transition duration-150">
                         Bekijk mijn advies
-                    </button>
+                    </a>
                     <a href="/books"
                        class="text-center hover:cursor-pointer border-accent p-2 hover:border-accent-hover border text-ink hover:bg-gray-200 transition duration-150">
                         Blader door de catalogus
@@ -62,9 +62,9 @@
                 <span class="text-accent text-md font-mono">Welkom!</span>
                 <h1 class="text-2xl md:text-4xl font-bold font-display">Hallo! Klaar om je leeslijst te starten?</h1>
                 <div class="flex flex-col sm:flex-row gap-3 md:gap-14 font-display">
-                    <button class="text-center hover:cursor-pointer bg-accent p-2 hover:bg-accent-hover border-accent hover:border-accent-hover border text-white transition duration-150">
-                        Vul je leesprofiel in.
-                    </button>
+                    <a href="/login" class="text-center hover:cursor-pointer bg-accent p-2 hover:bg-accent-hover border-accent hover:border-accent-hover border text-white transition duration-150">
+                        Maak een account aan
+                    </a>
                     <a href="/books"
                        class="text-center hover:cursor-pointer border-accent p-2 hover:border-accent-hover border text-ink hover:bg-gray-200 transition duration-150">
                         Blader door de catalogus

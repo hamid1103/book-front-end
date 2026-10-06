@@ -1,21 +1,46 @@
 <script lang="ts">
     import type {PageProps} from "./$types";
     import BookCard from "$lib/components/BookCard.svelte";
-    import type {Book} from "$lib/types";
+    import ReadingStatusPicker from "$lib/components/ReadingStatusPicker.svelte";
+    import type {Book, ReadingStatus} from "$lib/types";
+    import {removeFromReadingList, setReadingStatus} from "$lib/readingList";
 
     let {data}: PageProps = $props();
 
     let books: Book[] = $derived(data.readingList ?? [])
+    let status: Record<string, ReadingStatus> = $derived(data.readStatus ?? {})
+
+    // Books without an entry count as not read, same as the backend
+    const statusOf = (bookId: string): ReadingStatus => status[bookId] ?? 'NotRead'
+
+    const tabs: {value: ReadingStatus | 'All', label: string}[] = [
+        {value: 'All', label: 'Alle'},
+        {value: 'NotRead', label: 'Nog niet gelezen'},
+        {value: 'Reading', label: 'Bezig'},
+        {value: 'Read', label: 'Gelezen'},
+    ]
+    let activeTab: ReadingStatus | 'All' = $state('All')
+
+    let counts = $derived(Object.fromEntries(tabs.map(tab => [
+        tab.value,
+        tab.value === 'All' ? books.length : books.filter(book => statusOf(book._id) === tab.value).length,
+    ])))
+    let visibleBooks = $derived(activeTab === 'All' ? books : books.filter(book => statusOf(book._id) === activeTab))
 
     async function removeBook(bookId: string) {
-        const res = await fetch("/api/leeslijst", {
-            method: "POST",
-            body: JSON.stringify({bookId, onlyId: false, shouldDelete: true}),
-        })
-        if (!res.ok) return;
-
-        const result: {UserID: string, book: Book[]} = await res.json();
+        const result = await removeFromReadingList(bookId);
+        if (!result) return;
+        // Overrides the derived values until data changes again
         books = result.book;
+        status = result.status;
+    }
+
+    async function changeStatus(bookId: string, newStatus: ReadingStatus) {
+        const previous = status;
+        // Optimistic, so the radio and the counts update right away
+        status = {...status, [bookId]: newStatus};
+        const result = await setReadingStatus(bookId, newStatus);
+        status = result ? result.status : previous;
     }
 </script>
 
@@ -27,7 +52,7 @@
                 <h1 class="font-display text-ink text-2xl md:text-3xl font-bold">Jouw leeslijst</h1>
             </div>
             <span class="text-ink-muted font-body">
-                {books.length} {books.length === 1 ? 'boek' : 'boeken'}
+                {counts.Read} van {books.length} gelezen
             </span>
         </div>
 
@@ -40,9 +65,30 @@
                 </a>
             </div>
         {:else}
+            <fieldset class="mb-4">
+                <legend class="sr-only">Toon boeken met leesstatus</legend>
+                <div class="flex flex-wrap gap-2">
+                    {#each tabs as tab (tab.value)}
+                        <label class="cursor-pointer select-none rounded-full border-2 border-border-soft px-3 py-1 text-sm font-body text-ink-soft transition duration-150 hover:border-accent has-checked:border-accent has-checked:bg-accent-brown has-checked:text-white has-focus-visible:ring-2 has-focus-visible:ring-accent has-focus-visible:ring-offset-1">
+                            <input class="sr-only" type="radio" name="status-filter" value={tab.value} bind:group={activeTab}/>
+                            {tab.label} <span class="opacity-75">({counts[tab.value]})</span>
+                        </label>
+                    {/each}
+                </div>
+            </fieldset>
+
+            {#if visibleBooks.length === 0}
+                <p class="bg-surface border-2 border-border rounded-lg p-6 text-center font-body text-ink-soft">
+                    Geen boeken met deze status.
+                </p>
+            {/if}
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {#each books as book (book._id)}
-                    <BookCard {book} inReadingList={true} onToggle={() => removeBook(book._id)}/>
+                {#each visibleBooks as book (book._id)}
+                    <BookCard {book} inReadingList={true} onToggle={() => removeBook(book._id)}>
+                        <ReadingStatusPicker bookId={book._id} title={book.title} status={statusOf(book._id)}
+                                             onChange={(newStatus) => changeStatus(book._id, newStatus)}/>
+                    </BookCard>
                 {/each}
             </div>
         {/if}

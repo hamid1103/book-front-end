@@ -2,12 +2,15 @@
     import type {Book} from "$lib/types";
     import Heart from "$lib/components/Heart.svelte";
     import BookCover from "$lib/components/BookCover.svelte";
+    import type {Snippet} from "svelte";
 
     // The heart is only shown when onToggle is passed (e.g. not for logged out users)
-    let {book, inReadingList = false, onToggle}: {
+    // children is rendered at the bottom of the card, e.g. the reading status on /Leeslijst
+    let {book, inReadingList = false, onToggle, children}: {
         book: Book,
         inReadingList?: boolean,
         onToggle?: () => void,
+        children?: Snippet,
     } = $props();
 </script>
 
@@ -47,5 +50,7 @@
                 <span class="text-xs font-body px-2 py-0.5 rounded-full border border-border-soft text-ink-muted">#{tag}</span>
             {/each}
         </div>
+
+        {@render children?.()}
     </div>
 </div>
