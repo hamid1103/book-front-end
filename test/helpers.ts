@@ -1,8 +1,9 @@
-import {createRawSnippet} from 'svelte';
-import type {Book} from '$lib/types';
+import { createRawSnippet } from 'svelte';
+import type { Book } from '$lib/types';
 
 // Turns plain text into a snippet, for components that take children
-export const text = (value: string) => createRawSnippet(() => ({render: () => `<span>${value}</span>`}));
+export const text = (value: string) =>
+    createRawSnippet(() => ({ render: () => `<span>${value}</span>` }));
 
 export const book: Book = {
     _id: 'abc123',
@@ -12,5 +13,5 @@ export const book: Book = {
     description: 'Een week uit het leven van Frits van Egters.',
     readingLevel: ['B2'],
     tags: ['klassieker'],
-    materialType: 'Boek',
+    materialType: 'Boek'
 };

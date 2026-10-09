@@ -42,8 +42,8 @@ npm install
 npm run dev             # http://localhost:5173
 ```
 
-| Variable | Description | Default |
-| --- | --- | --- |
+| Variable      | Description                                             | Default                 |
+| ------------- | ------------------------------------------------------- | ----------------------- |
 | `BACKEND_URL` | Base URL of `fastify-backend`. Only read on the server. | `http://localhost:3000` |
 
 ### 3. Create accounts
@@ -59,12 +59,14 @@ An admin can then make other accounts teachers on `/admin`. A student links them
 
 ### Scripts
 
-| Command | What it does |
-| --- | --- |
-| `npm run dev` | Development server with hot reload |
-| `npm run check` | Type-checks the TypeScript and Svelte files (`svelte-check`). Run this before you commit. |
-| `npm run build` | Production build into `build/` (Node adapter) |
-| `npm run preview` | Serves the production build locally |
+| Command           | What it does                                                                                       |
+| ----------------- | -------------------------------------------------------------------------------------------------- |
+| `npm run dev`     | Development server with hot reload                                                                 |
+| `npm run check`   | Type-checks the TypeScript and Svelte files (`svelte-check`). Run this before you commit.          |
+| `npm run lint`    | Checks formatting (Prettier) and code rules (ESLint). Must pass before you commit; CI runs it too. |
+| `npm run format`  | Formats every file with Prettier                                                                   |
+| `npm run build`   | Production build into `build/` (Node adapter)                                                      |
+| `npm run preview` | Serves the production build locally                                                                |
 
 ### Docker
 
@@ -121,16 +123,16 @@ Forms are plain HTML forms with `use:enhance`, so they also work without JavaScr
 
 Everything in `src/lib/components` is reused on several pages. When you need a piece of UI that already exists elsewhere, use or extend one of these instead of copying markup.
 
-| Component | Used for |
-| --- | --- |
-| `BookCard`, `BookCover`, `BookTags`, `Heart` | A book in a list: generated cover, title, description, level/genre/tag badges, reading-list heart |
-| `ChoiceGroup` | A `<fieldset>` of radio buttons or checkboxes shown as pills (profile form, catalogue filters, status tabs) |
-| `ReadingStatusPicker` | "Nog niet gelezen / Bezig / Gelezen" on a reading-list card |
-| `ReadingProfileSummary` | Short read-only view of a reading profile |
-| `AuthForm`, `FormField` | The login and register card, and a labelled input |
-| `SearchForm` | A `q` search field as a GET form |
-| `PageHeader`, `EmptyState`, `CallToAction`, `Pagination` | Page title bar, "nothing here yet" box, banner with a link, page buttons |
-| `Avatar`, `Badge` | Initial in a circle, small rounded label |
+| Component                                                | Used for                                                                                                    |
+| -------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `BookCard`, `BookCover`, `BookTags`, `Heart`             | A book in a list: generated cover, title, description, level/genre/tag badges, reading-list heart           |
+| `ChoiceGroup`                                            | A `<fieldset>` of radio buttons or checkboxes shown as pills (profile form, catalogue filters, status tabs) |
+| `ReadingStatusPicker`                                    | "Nog niet gelezen / Bezig / Gelezen" on a reading-list card                                                 |
+| `ReadingProfileSummary`                                  | Short read-only view of a reading profile                                                                   |
+| `AuthForm`, `FormField`                                  | The login and register card, and a labelled input                                                           |
+| `SearchForm`                                             | A `q` search field as a GET form                                                                            |
+| `PageHeader`, `EmptyState`, `CallToAction`, `Pagination` | Page title bar, "nothing here yet" box, banner with a link, page buttons                                    |
+| `Avatar`, `Badge`                                        | Initial in a circle, small rounded label                                                                    |
 
 ### Authentication
 
@@ -147,13 +149,13 @@ Say you want to show the material type ("boek", "artikel", …) on every book ca
 
 1. The field already exists: `materialType` on `Book` in `src/lib/types.ts`.
 2. Every card renders its badges through `src/lib/components/BookTags.svelte`. Add a badge there:
-   ```svelte
-   {#if book.materialType}
-       <Badge>{book.materialType}</Badge>
-   {/if}
-   ```
+    ```svelte
+    {#if book.materialType}
+        <Badge>{book.materialType}</Badge>
+    {/if}
+    ```
 3. Run `npm run dev` and open `/books`, `/advies` or `/Leeslijst`. The badge shows on all of them, and in the homepage carousel.
-4. Run `npm run check` and make sure it reports 0 errors.
+4. Run `npm run format`, then `npm run check` and `npm run lint`, and make sure both report 0 errors.
 
 A new page works the same way: add a folder under `src/routes` with a `+page.server.ts` that fetches from `BACKEND_URL` and a `+page.svelte` that shows `data`. Add the link to `links` in `src/routes/+layout.svelte` to put it in the navigation.
 
@@ -199,4 +201,6 @@ The code follows the official [Svelte 5](https://svelte.dev/docs/svelte) and [Sv
 ### Formatting and comments
 
 - 4 spaces of indentation in `.svelte` and `.ts` files.
-- Comments explain *why* something is done, not what the line does. Write one above anything that would surprise a new reader, such as a workaround or a backend quirk.
+- Formatting is done by [Prettier](https://prettier.io) (`prettier.config.js`): 4 spaces, single quotes, 100 characters per line, and Tailwind classes sorted by `prettier-plugin-tailwindcss`. Run `npm run format` instead of formatting by hand.
+- Code rules are checked by [ESLint](https://eslint.org) (`eslint.config.js`) with the recommended JavaScript, `typescript-eslint` and `eslint-plugin-svelte` rules. For example, every `{#each}` needs a key and unused variables are errors. `npm run lint` runs both tools, and CI fails when either one does.
+- Comments explain _why_ something is done, not what the line does. Write one above anything that would surprise a new reader, such as a workaround or a backend quirk.

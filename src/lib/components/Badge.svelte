@@ -3,17 +3,19 @@
 </script>
 
 <script lang="ts">
-    import type {Snippet} from "svelte";
+    import type { Snippet } from 'svelte';
 
     // Small rounded label, used for book tags, reading status, roles and "Gekoppeld"
-    let {variant = 'outline', children}: {variant?: BadgeVariant, children: Snippet} = $props();
+    let { variant = 'outline', children }: { variant?: BadgeVariant; children: Snippet } = $props();
 
     const styles: Record<BadgeVariant, string> = {
         tan: 'font-semibold bg-tan-bg text-tan-text',
         sage: 'font-semibold bg-sage-bg text-sage-text border border-sage-border',
         outline: 'border border-border-soft text-ink-muted',
-        solid: 'font-semibold bg-sage-text text-white',
+        solid: 'font-semibold bg-sage-text text-white'
     };
 </script>
 
-<span class="text-xs font-body px-2 py-0.5 rounded-full {styles[variant]}">{@render children()}</span>
+<span class="rounded-full px-2 py-0.5 font-body text-xs {styles[variant]}"
+    >{@render children()}</span
+>

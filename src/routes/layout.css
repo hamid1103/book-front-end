@@ -4,40 +4,39 @@
 @plugin '@tailwindcss/forms';
 @plugin '@tailwindcss/typography';
 
-
 @theme {
     /* Fonts */
-    --font-display: "Fraunces", ui-serif, Georgia, serif;
-    --font-body: "Work Sans", ui-sans-serif, system-ui, sans-serif;
+    --font-display: 'Fraunces', ui-serif, Georgia, serif;
+    --font-body: 'Work Sans', ui-sans-serif, system-ui, sans-serif;
 
     /* Base */
-    --color-ivory: #FAF6EF;        /* page background */
-    --color-surface: #FFFFFF;      /* cards */
-    --color-ink: #2A2620;          /* primary text */
-    --color-ink-soft: #4E483D;     /* body copy */
-    --color-ink-muted: #6B6355;    /* secondary text */
-    --color-ink-faint: #948C7C;    /* tertiary / labels */
-    --color-border: #E7DFD2;       /* card borders */
-    --color-border-soft: #DDD4C4;  /* input / chip borders */
+    --color-ivory: #faf6ef; /* page background */
+    --color-surface: #ffffff; /* cards */
+    --color-ink: #2a2620; /* primary text */
+    --color-ink-soft: #4e483d; /* body copy */
+    --color-ink-muted: #6b6355; /* secondary text */
+    --color-ink-faint: #948c7c; /* tertiary / labels */
+    --color-border: #e7dfd2; /* card borders */
+    --color-border-soft: #ddd4c4; /* input / chip borders */
 
     /* Primary accent (terracotta) */
-    --color-accent: #B5502E;
-    --color-accent-hover: #8A3D22;
+    --color-accent: #b5502e;
+    --color-accent-hover: #8a3d22;
 
     /* Alternate accents (used as the Tweaks color options) */
-    --color-accent-sage: #52735F;
-    --color-accent-blue: #3D6B8A;
-    --color-accent-brown: #8B5E3C;
+    --color-accent-sage: #52735f;
+    --color-accent-blue: #3d6b8a;
+    --color-accent-brown: #8b5e3c;
 
     /* Tag / chip fill (taalniveau, genre badges) */
-    --color-tan-bg: #F1E9DC;
-    --color-tan-text: #7A4A22;
+    --color-tan-bg: #f1e9dc;
+    --color-tan-text: #7a4a22;
 
     /* Status: gelezen / gekoppeld (sage) */
-    --color-sage-bg: #EAF0EB;
-    --color-sage-text: #3F5C48;
-    --color-sage-border: #C6D6C9;
+    --color-sage-bg: #eaf0eb;
+    --color-sage-text: #3f5c48;
+    --color-sage-border: #c6d6c9;
 
     /* Teacher role badge */
-    --color-role-bg: #DCE6DF;
+    --color-role-bg: #dce6df;
 }

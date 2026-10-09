@@ -1,27 +1,27 @@
 # Requirements status – LU1 Proof of Concept
 
-Checked against *Opdracht LU1 – Proof of Concept v1.2* on 2026-10-04.
+Checked against _Opdracht LU1 – Proof of Concept v1.2_ on 2026-10-04.
 Covers this frontend (`bookfrontend`) and the backend it talks to (`../fastify-backend`).
 
 Legend: ✅ done · 🟡 partly done · ❌ not done
 
 ## Summary
 
-| Requirement | Status |
-| --- | --- |
-| FR1 – Fill in a reading profile | ✅ |
-| FR2 – View and change the profile | ✅ |
-| FR3 – Receive reading advice | ✅ (simulated matching) |
-| FR4 – Browse the catalogue | ✅ (length simulated) |
-| FR5 – Keep a reading list | ✅ |
-| FR6 – Teachers can view reading lists | ✅ |
-| NFR1 – Component architecture | ✅ |
-| NFR2 – README | ✅ |
-| NFR3 – Automated tests | ✅ |
-| NFR4 – Responsive without losing features | ✅ |
-| NFR5 – WCAG level A | ✅ |
-| NFR6 – Authentication | ✅ |
-| NFR7 – Appropriate data storage | ✅ |
+| Requirement                               | Status                  |
+| ----------------------------------------- | ----------------------- |
+| FR1 – Fill in a reading profile           | ✅                      |
+| FR2 – View and change the profile         | ✅                      |
+| FR3 – Receive reading advice              | ✅ (simulated matching) |
+| FR4 – Browse the catalogue                | ✅ (length simulated)   |
+| FR5 – Keep a reading list                 | ✅                      |
+| FR6 – Teachers can view reading lists     | ✅                      |
+| NFR1 – Component architecture             | ✅                      |
+| NFR2 – README                             | ✅                      |
+| NFR3 – Automated tests                    | ✅                      |
+| NFR4 – Responsive without losing features | ✅                      |
+| NFR5 – WCAG level A                       | ✅                      |
+| NFR6 – Authentication                     | ✅                      |
+| NFR7 – Appropriate data storage           | ✅                      |
 
 ---
 
@@ -46,10 +46,10 @@ Legend: ✅ done · 🟡 partly done · ❌ not done
 The catalogue data is too thin for real matching: 183 items, no genres, only ~40 with tags, no length, and some are news articles. So the matching uses whatever signals exist, and the motivation text is partly simulated.
 
 - ✅ `fastify-backend/src/Services/AdviceService.ts` scores every item against the profile:
-  - themes: profile themes vs. book `tags` (+3 per match)
-  - level: CEFR → referentiekader (`A2`→2F, `B1`→2F/3F, `B2`→3F/3F+, `C1`→3F+) (+2)
-  - length: approximated by material type (articles = short, magazines/poetry = medium, books = long) (+1)
-  - random jitter, so items with the same score rotate between visits
+    - themes: profile themes vs. book `tags` (+3 per match)
+    - level: CEFR → referentiekader (`A2`→2F, `B1`→2F/3F, `B2`→3F/3F+, `C1`→3F+) (+2)
+    - length: approximated by material type (articles = short, magazines/poetry = medium, books = long) (+1)
+    - random jitter, so items with the same score rotate between visits
 - ✅ Every suggestion gets a `motivation` ("waarom dit bij jou past"), built from the matched reasons plus the reading goal. When nothing matched, a simulated reason is used.
 - ✅ Logged-out users, or users without a profile, get random items with a generic simulated reason.
 - ✅ The motivation is shown in `BookCard` (`/advies`) and in the homepage carousel.
@@ -61,8 +61,8 @@ The catalogue data is too thin for real matching: 183 items, no genres, only ~40
 
 - ✅ Pagination with first/previous/next/last buttons, showing "Resultaten X-Y van de Z" and the total number of results.
 - ✅ Filters on `/books`: title search, level (`2F`/`3F`/`3F+`), themes (book `tags`, list from `/books/genres`) and length.
-  - There is no length in the data, so length maps onto `materialType`, the same way as in `AdviceService` (Kort = articles/blogs, Middel = magazines/poetry, Lang = books).
-  - There are no genres in the data either, so themes/tags cover both "genre" and "topic".
+    - There is no length in the data, so length maps onto `materialType`, the same way as in `AdviceService` (Kort = articles/blogs, Middel = magazines/poetry, Lang = books).
+    - There are no genres in the data either, so themes/tags cover both "genre" and "topic".
 - ✅ Filters combine (AND between groups, OR within a group), live in the URL (shareable, survive pagination) and reset with "Filters wissen". A new filter starts at page 1.
 - ✅ The filter form is a plain GET form, so it also works without JavaScript; checkboxes apply right away when JS is on.
 - ✅ An empty result shows "Geen boeken gevonden".
@@ -72,8 +72,8 @@ The catalogue data is too thin for real matching: 183 items, no genres, only ~40
 
 - ✅ You can add books from the catalogue (`/books`) and from the advice page (`/advies`) with the heart button. The heart only shows for logged-in users.
 - ✅ Read status per book: "Nog niet gelezen", "Bezig" or "Gelezen" (`NotRead`/`Reading`/`Read`), stored in the reading list's `status` map and set through `PATCH /readinglist`.
-  - `ReadingStatusPicker` (a radio group in a `<fieldset>`) sits on every card in `/Leeslijst`. It updates right away and rolls back if the request fails.
-  - `/Leeslijst` can be filtered by status (with counts) and shows "X van Y gelezen".
+    - `ReadingStatusPicker` (a radio group in a `<fieldset>`) sits on every card in `/Leeslijst`. It updates right away and rolls back if the request fails.
+    - `/Leeslijst` can be filtered by status (with counts) and shows "X van Y gelezen".
 - ✅ Removing a book from the list also drops its status (backend).
 - ✅ The list is personal (filtered on `userID`); linked teachers can view it and add to it (see FR6).
 - The client calls live in `$lib/readingList.ts`, shared by `/books`, `/advies` and `/Leeslijst`.
@@ -96,9 +96,9 @@ Backend: `fastify-backend/src/Controllers/StudentTeacherController.ts`, guarded 
 ### NFR1 – Component architecture ✅
 
 - ✅ Reusable components in `src/lib/components`, every repeated piece of UI has one:
-  - Books: `BookCard`, `BookCover`, `BookTags` (level/genre/tag badges, shared by `BookCard` and the homepage carousel), `Heart`.
-  - Forms: `ChoiceGroup` (a `<fieldset>` of radio/checkbox pills, used by `/leesprofiel`, the `/books` filters and the `/Leeslijst` status tabs), `ReadingStatusPicker`, `SearchForm` (`/admin`, `/leerlingen/[id]`), `AuthForm` + `FormField` (`/login`, `/register`).
-  - Layout: `PageHeader`, `EmptyState`, `CallToAction` (`/advies`), `Pagination` (`/books`), `Avatar`, `Badge` (tags, reading status, roles, "Gekoppeld"), `ReadingProfileSummary`.
+    - Books: `BookCard`, `BookCover`, `BookTags` (level/genre/tag badges, shared by `BookCard` and the homepage carousel), `Heart`.
+    - Forms: `ChoiceGroup` (a `<fieldset>` of radio/checkbox pills, used by `/leesprofiel`, the `/books` filters and the `/Leeslijst` status tabs), `ReadingStatusPicker`, `SearchForm` (`/admin`, `/leerlingen/[id]`), `AuthForm` + `FormField` (`/login`, `/register`).
+    - Layout: `PageHeader`, `EmptyState`, `CallToAction` (`/advies`), `Pagination` (`/books`), `Avatar`, `Badge` (tags, reading status, roles, "Gekoppeld"), `ReadingProfileSummary`.
 - ✅ The duplicates are gone: the 10 copy-pasted pills on `/leesprofiel`, the homepage hero (one block, text depends on login), the 4 call-to-actions on `/advies` (one responsive component), the pagination buttons, and the carousel tag pills.
 - ✅ Shared types live in `$lib/types` (`Book`, `ReadingProfile`, `ReadingList`, `Role`, ...). The inline `Book` type and the profile type on `/leesprofiel` use them now, and `App.User.role` is the `Role` type.
 - ✅ The SvelteKit server-load → backend pattern is used consistently, client calls go through `$lib/readingList.ts`.
@@ -112,7 +112,7 @@ Backend: `fastify-backend/src/Controllers/StudentTeacherController.ts`, guarded 
 - ✅ The folder structure, how a page works (`load`/actions, `use:enhance`, the `/api/leeslijst` proxy), the components and the authentication flow.
 - ✅ A worked example of a small change (a badge on every book card), so a teammate can make and run a change without help.
 - ✅ A coding style guide (Svelte 5/SvelteKit conventions plus project rules for TypeScript, naming, Tailwind theme tokens and accessibility). The code follows it: runes only, `lang="ts"` everywhere, 4-space indentation, theme colours instead of raw Tailwind colours, and `npm run check` passes with 0 errors.
-- 🟡 The guide isn't enforced by tooling yet: there's no Prettier or ESLint config, so formatting is checked by hand.
+- ✅ The guide is enforced by tooling: Prettier (`prettier.config.js`, 4 spaces) and ESLint (`eslint.config.js`, recommended JS/TypeScript/Svelte rules). `npm run lint` passes with 0 errors and runs in CI (`.github/workflows/playwright.yml`).
 
 ### NFR3 – Automated tests ✅
 
@@ -140,10 +140,10 @@ Backend: `fastify-backend/src/Controllers/StudentTeacherController.ts`, guarded 
 - ✅ Role-based authorization on the student–teacher routes (`requireRole`, see FR6).
 - ✅ Admin panel on `/admin` (admin only): search accounts and switch them between student and teacher. Admins can't change their own role (backend), and admin roles aren't changeable from the UI.
 - Frontend:
-  - ✅ `/Leeslijst` redirects to `/login`.
-  - ✅ `/leesprofiel` redirects to `/login`.
-  - ✅ Registration on `/register`.
-  - ✅ "Uitloggen" in the account menu posts to `/logout`, which deletes the `jwt` cookie, and then reloads the page data (`refreshAll`).
+    - ✅ `/Leeslijst` redirects to `/login`.
+    - ✅ `/leesprofiel` redirects to `/login`.
+    - ✅ Registration on `/register`.
+    - ✅ "Uitloggen" in the account menu posts to `/logout`, which deletes the `jwt` cookie, and then reloads the page data (`refreshAll`).
 
 ### NFR7 – Appropriate data storage ✅
 
@@ -160,8 +160,13 @@ Backend: `fastify-backend/src/Controllers/StudentTeacherController.ts`, guarded 
 3. ~~**FR4** – filters on `/books`, in both backend and frontend, plus the total result count.~~ Done.
 4. ~~**FR6 + role checks**~~ Done.
 5. Smaller fixes:
-   - [x] NFR5: Heart → `<button>`, carousel pause, fieldsets, `lang="nl"`
-   - [x] FR2: unsaved-changes prompt
-   - [x] NFR4: wire up the dead homepage buttons
-   - [x ] NFR2: README (Prettier/ESLint still optional)
-   - [x] NFR3: Vitest
+    - [x] NFR5: Heart → `<button>`, carousel pause, fieldsets, `lang="nl"`
+    - [x] FR2: unsaved-changes prompt
+    - [x] NFR4: wire up the dead homepage buttons
+    - [x] NFR2: README + Prettier/ESLint
+    - [x] NFR3: Vitest
+
+## TODO
+
+- [x] Skeleton loading: a progress bar on every client-side navigation, `/advies` streams the advice behind `BookCardSkeleton`s, `/books` stays server rendered (SEO) and shows skeletons while filtering/paginating.
+- [ ] A universal error page (`src/routes/+error.svelte`).

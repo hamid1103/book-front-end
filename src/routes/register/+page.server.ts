@@ -8,7 +8,7 @@ const MIN_PASSWORD_LENGTH = 8;
 // The backend answers in English, these are the messages a user can act on
 const BACKEND_ERRORS: Record<string, string> = {
     'Username already exists': 'Deze gebruikersnaam is al in gebruik.',
-    'Email already exists': 'Er bestaat al een account met dit e-mailadres.',
+    'Email already exists': 'Er bestaat al een account met dit e-mailadres.'
 };
 
 export const load: PageServerLoad = async ({ locals }) => {
@@ -29,7 +29,10 @@ export const actions = {
             return fail(400, { ...values, error: 'Vul alle velden in.' });
         }
         if (password.length < MIN_PASSWORD_LENGTH) {
-            return fail(400, { ...values, error: `Je wachtwoord moet minstens ${MIN_PASSWORD_LENGTH} tekens lang zijn.` });
+            return fail(400, {
+                ...values,
+                error: `Je wachtwoord moet minstens ${MIN_PASSWORD_LENGTH} tekens lang zijn.`
+            });
         }
         if (password !== confirm) {
             return fail(400, { ...values, error: 'De wachtwoorden komen niet overeen.' });
@@ -42,7 +45,11 @@ export const actions = {
         });
         if (!res.ok) {
             const message = await backendMessage(res, '');
-            return fail(res.status, { ...values, error: BACKEND_ERRORS[message] ?? 'Registreren is mislukt, probeer het later opnieuw.' });
+            return fail(res.status, {
+                ...values,
+                error:
+                    BACKEND_ERRORS[message] ?? 'Registreren is mislukt, probeer het later opnieuw.'
+            });
         }
 
         const { access_token } = await res.json();

@@ -6,7 +6,9 @@ export const handle: Handle = async ({ event, resolve }) => {
     event.locals.user = null;
 
     if (token) {
-        const res = await fetch(`${BACKEND_URL}/me`, { headers: { Authorization: `Bearer ${token}` } });
+        const res = await fetch(`${BACKEND_URL}/me`, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
         if (res.ok) event.locals.user = await res.json();
         else event.cookies.delete('jwt', { path: '/' }); // expired or invalid
     }

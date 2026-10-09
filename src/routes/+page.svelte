@@ -1,15 +1,27 @@
 <script lang="ts">
-    import BookCover from "$lib/components/BookCover.svelte";
-    import BookTags from "$lib/components/BookTags.svelte";
+    import BookCover from '$lib/components/BookCover.svelte';
+    import BookTags from '$lib/components/BookTags.svelte';
 
-    let {data} = $props();
+    let { data } = $props();
 
     // data.user comes from the layout load
-    let user = $derived(data.user)
-    let advice = $derived(data.advice)
-    let hero = $derived(user
-        ? {eyebrow: 'Welkom terug.', title: `Hoi ${user.userName}, klaar voor je volgende boek?`, href: '/advies', cta: 'Bekijk mijn advies'}
-        : {eyebrow: 'Welkom!', title: 'Hallo! Klaar om je leeslijst te starten?', href: '/register', cta: 'Maak een account aan'})
+    let user = $derived(data.user);
+    let advice = $derived(data.advice);
+    let hero = $derived(
+        user
+            ? {
+                  eyebrow: 'Welkom terug.',
+                  title: `Hoi ${user.userName}, klaar voor je volgende boek?`,
+                  href: '/advies',
+                  cta: 'Bekijk mijn advies'
+              }
+            : {
+                  eyebrow: 'Welkom!',
+                  title: 'Hallo! Klaar om je leeslijst te starten?',
+                  href: '/register',
+                  cta: 'Maak een account aan'
+              }
+    );
     let current = $state(0);
     // stopped is the pause button, hovered/focused pause it temporarily (WCAG 2.2.2)
     let stopped = $state(false);
@@ -52,59 +64,79 @@
     });
 </script>
 
-<div class="w-full h-full flex items-center space-y-5 p-4 flex-col">
-    <div class="bg-surface w-full md:w-9/12 md:h-64 flex text-ink rounded-md border-2 border-accent p-2 md:p-4">
-        <div class="flex flex-col w-full md:w-1/2 p-2 space-y-2">
-            <span class="text-accent text-md font-mono">{hero.eyebrow}</span>
-            <h1 class="text-2xl md:text-4xl font-bold font-display">{hero.title}</h1>
-            <div class="flex flex-col sm:flex-row gap-3 md:gap-14 font-display">
-                <a href={hero.href} class="text-center hover:cursor-pointer bg-accent p-2 hover:bg-accent-hover border-accent hover:border-accent-hover border text-white transition duration-150">
+<div class="flex h-full w-full flex-col items-center space-y-5 p-4">
+    <div
+        class="flex w-full rounded-md border-2 border-accent bg-surface p-2 text-ink md:h-64 md:w-9/12 md:p-4"
+    >
+        <div class="flex w-full flex-col space-y-2 p-2 md:w-1/2">
+            <span class="text-md font-mono text-accent">{hero.eyebrow}</span>
+            <h1 class="font-display text-2xl font-bold md:text-4xl">{hero.title}</h1>
+            <div class="flex flex-col gap-3 font-display sm:flex-row md:gap-14">
+                <a
+                    href={hero.href}
+                    class="border border-accent bg-accent p-2 text-center text-white transition duration-150 hover:cursor-pointer hover:border-accent-hover hover:bg-accent-hover"
+                >
                     {hero.cta}
                 </a>
-                <a href="/books"
-                   class="text-center hover:cursor-pointer border-accent p-2 hover:border-accent-hover border text-ink hover:bg-tan-bg transition duration-150">
+                <a
+                    href="/books"
+                    class="border border-accent p-2 text-center text-ink transition duration-150 hover:cursor-pointer hover:border-accent-hover hover:bg-tan-bg"
+                >
                     Blader door de catalogus
                 </a>
             </div>
         </div>
         <!-- Decorative image, hidden on mobile to save space -->
-        <div class="hidden md:flex flex-col w-1/2 h-full justify-center p-2">
-            <div class="h-11/12 rounded-lg bg-tan-bg flex justify-center items-center">
-                <img src="/HomeBookImage.png" alt="Plaatje van een leeg boek."/>
+        <div class="hidden h-full w-1/2 flex-col justify-center p-2 md:flex">
+            <div class="flex h-11/12 items-center justify-center rounded-lg bg-tan-bg">
+                <img src="/HomeBookImage.png" alt="Plaatje van een leeg boek." />
             </div>
         </div>
     </div>
 
     <div
-            class="w-full md:w-1/2 rounded-sm h-80 relative overflow-hidden"
-            role="region"
-            aria-roledescription="carousel"
-            aria-label="Boekadvies"
-            onmouseenter={() => (hovered = true)}
-            onmouseleave={() => (hovered = false)}
-            onfocusin={() => (focused = true)}
-            onfocusout={onFocusOut}
-            ontouchstart={onTouchStart}
-            ontouchend={onTouchEnd}
+        class="relative h-80 w-full overflow-hidden rounded-sm md:w-1/2"
+        role="region"
+        aria-roledescription="carousel"
+        aria-label="Boekadvies"
+        onmouseenter={() => (hovered = true)}
+        onmouseleave={() => (hovered = false)}
+        onfocusin={() => (focused = true)}
+        onfocusout={onFocusOut}
+        ontouchstart={onTouchStart}
+        ontouchend={onTouchEnd}
     >
         <!-- Screen readers only announce slide changes the user made, not the automatic ones -->
-        <div class="flex h-full transition-transform duration-500 motion-reduce:transition-none"
-             style="transform: translateX(-{current * 100}%)"
-             aria-live={rotating ? 'off' : 'polite'}>
-            {#each advice as book, i}
+        <div
+            class="flex h-full transition-transform duration-500 motion-reduce:transition-none"
+            style="transform: translateX(-{current * 100}%)"
+            aria-live={rotating ? 'off' : 'polite'}
+        >
+            {#each advice as book, i (book._id)}
                 <!-- inert keeps the links of hidden slides out of the tab order -->
-                <div class="w-full h-full flex justify-center items-center p-2 shrink-0 bg-surface"
-                     role="group" aria-roledescription="slide" aria-label="{i + 1} van {advice.length}"
-                     inert={i !== current}>
-                    <div class="w-full px-8 md:px-0 md:w-3/4 flex gap-4">
-                        <BookCover {book} size="lg"/>
-                        <div class="flex flex-col justify-start font-display min-w-0">
-                            <h2 class="text-lg md:text-2xl font-display">Heb je deze al geprobeert?</h2>
-                            <span class="text-sm md:text-base line-clamp-[10] md:line-clamp-none">Beschrijving: {book.description}</span>
+                <div
+                    class="flex h-full w-full shrink-0 items-center justify-center bg-surface p-2"
+                    role="group"
+                    aria-roledescription="slide"
+                    aria-label="{i + 1} van {advice.length}"
+                    inert={i !== current}
+                >
+                    <div class="flex w-full gap-4 px-8 md:w-3/4 md:px-0">
+                        <BookCover {book} size="lg" />
+                        <div class="flex min-w-0 flex-col justify-start font-display">
+                            <h2 class="font-display text-lg md:text-2xl">
+                                Heb je deze al geprobeert?
+                            </h2>
+                            <span class="line-clamp-[10] text-sm md:line-clamp-none md:text-base"
+                                >Beschrijving: {book.description}</span
+                            >
                             {#if book.motivation}
-                                <span class="text-sm md:text-base italic text-accent mt-1 line-clamp-3">{book.motivation}</span>
+                                <span
+                                    class="mt-1 line-clamp-3 text-sm text-accent italic md:text-base"
+                                    >{book.motivation}</span
+                                >
                             {/if}
-                            <BookTags {book}/>
+                            <BookTags {book} />
                         </div>
                     </div>
                 </div>
@@ -112,37 +144,39 @@
         </div>
 
         <button
-                class="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full border-2 border-accent bg-ivory/80 hover:bg-ivory text-ink font-bold cursor-pointer"
-                onclick={prev}
-                aria-label="Vorige"
-        >‹
+            class="absolute top-1/2 left-2 h-8 w-8 -translate-y-1/2 cursor-pointer rounded-full border-2 border-accent bg-ivory/80 font-bold text-ink hover:bg-ivory"
+            onclick={prev}
+            aria-label="Vorige"
+            >‹
         </button>
         <button
-                class="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full border-2 border-accent bg-ivory/80 hover:bg-ivory text-ink font-bold cursor-pointer"
-                onclick={next}
-                aria-label="Volgende"
-        >›
+            class="absolute top-1/2 right-2 h-8 w-8 -translate-y-1/2 cursor-pointer rounded-full border-2 border-accent bg-ivory/80 font-bold text-ink hover:bg-ivory"
+            onclick={next}
+            aria-label="Volgende"
+            >›
         </button>
 
         {#if advice.length > 1}
             <button
-                    class="absolute bottom-2 right-2 w-8 h-8 rounded-full border-2 border-accent bg-ivory/80 hover:bg-ivory text-ink font-bold cursor-pointer focus-visible:ring-2 focus-visible:ring-accent"
-                    onclick={() => (stopped = !stopped)}
-                    aria-label={stopped ? 'Start carousel' : 'Pauzeer carousel'}
-                    title={stopped ? 'Start carousel' : 'Pauzeer carousel'}
+                class="absolute right-2 bottom-2 h-8 w-8 cursor-pointer rounded-full border-2 border-accent bg-ivory/80 font-bold text-ink hover:bg-ivory focus-visible:ring-2 focus-visible:ring-accent"
+                onclick={() => (stopped = !stopped)}
+                aria-label={stopped ? 'Start carousel' : 'Pauzeer carousel'}
+                title={stopped ? 'Start carousel' : 'Pauzeer carousel'}
             >
                 <span aria-hidden="true">{stopped ? '▶' : '⏸'}</span>
             </button>
         {/if}
 
-        <div class="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-2">
-            {#each advice as _, i}
-                    <button
-                            class="w-2.5 h-2.5 rounded-full cursor-pointer transition {i === current ? 'bg-ivory' : 'bg-ivory/50'}"
-                            onclick={() => (current = i)}
-                            aria-label="Ga naar slide {i + 1}"
-                            aria-current={i === current ? 'true' : undefined}
-                    ></button>
+        <div class="absolute bottom-2 left-1/2 flex -translate-x-1/2 gap-2">
+            {#each advice as book, i (book._id)}
+                <button
+                    class="h-2.5 w-2.5 cursor-pointer rounded-full transition {i === current
+                        ? 'bg-ivory'
+                        : 'bg-ivory/50'}"
+                    onclick={() => (current = i)}
+                    aria-label="Ga naar slide {i + 1}"
+                    aria-current={i === current ? 'true' : undefined}
+                ></button>
             {/each}
         </div>
     </div>

@@ -1,16 +1,23 @@
-import type {PageServerLoad} from "./$types";
-import {BACKEND_URL} from "$lib/server/api";
-import {error} from "@sveltejs/kit";
-import type {Book, ReadingList} from "$lib/types";
+import type { PageServerLoad } from './$types';
+import { BACKEND_URL } from '$lib/server/api';
+import { error } from '@sveltejs/kit';
+import type { Book, ReadingList } from '$lib/types';
 
-export const load: PageServerLoad = async ({fetch, locals}): Promise<{books: Book[], loggedIn: boolean, readingList: string[] | null}> => {
-    const loggedIn: boolean = locals.user !== null
+// The advice is streamed: the page (with skeletons) is sent right away and the books follow when the backend is done.
+// It's personal advice, so there's nothing for search engines to miss here
+export const load: PageServerLoad = async ({
+    fetch,
+    locals
+}): Promise<{ advice: Promise<Book[]>; loggedIn: boolean; readingList: string[] | null }> => {
+    const loggedIn: boolean = locals.user !== null;
 
-    const req = await fetch(`${BACKEND_URL}/advice?amount=4`);
-    if (!req.ok) {
-        error(req.status, req.statusText);
-    }
-    const books: Book[] = await req.json();
+    // Not awaited. error() can't be used once streaming has started, so a failure rejects and the page shows it
+    const advice = fetch(`${BACKEND_URL}/advice?amount=4`).then(async (req): Promise<Book[]> => {
+        if (!req.ok) {
+            throw new Error(req.statusText);
+        }
+        return req.json();
+    });
 
     // Only logged in users have a reading list, so only they get the heart
     let readingList: string[] | null = null;
@@ -23,5 +30,5 @@ export const load: PageServerLoad = async ({fetch, locals}): Promise<{books: Boo
         readingList = rld.book;
     }
 
-    return {books: books, loggedIn, readingList};
-}
+    return { advice, loggedIn, readingList };
+};
