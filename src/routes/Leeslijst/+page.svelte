@@ -2,6 +2,9 @@
     import type {PageProps} from "./$types";
     import BookCard from "$lib/components/BookCard.svelte";
     import ReadingStatusPicker from "$lib/components/ReadingStatusPicker.svelte";
+    import ChoiceGroup from "$lib/components/ChoiceGroup.svelte";
+    import EmptyState from "$lib/components/EmptyState.svelte";
+    import PageHeader from "$lib/components/PageHeader.svelte";
     import type {Book, ReadingStatus} from "$lib/types";
     import {removeFromReadingList, setReadingStatus} from "$lib/readingList";
 
@@ -25,6 +28,7 @@
         tab.value,
         tab.value === 'All' ? books.length : books.filter(book => statusOf(book._id) === tab.value).length,
     ])))
+    let tabChoices = $derived(tabs.map(tab => ({...tab, count: counts[tab.value]})))
     let visibleBooks = $derived(activeTab === 'All' ? books : books.filter(book => statusOf(book._id) === activeTab))
 
     async function removeBook(bookId: string) {
@@ -46,36 +50,20 @@
 
 <div class="w-full min-h-full bg-ivory px-4 py-6 md:py-8">
     <div class="max-w-5xl mx-auto">
-        <div class="flex items-end justify-between mb-6 border-b border-border pb-4">
-            <div>
-                <span class="text-accent font-mono text-sm">Leeslijst</span>
-                <h1 class="font-display text-ink text-2xl md:text-3xl font-bold">Jouw leeslijst</h1>
-            </div>
-            <span class="text-ink-muted font-body">
-                {counts.Read} van {books.length} gelezen
-            </span>
-        </div>
+        <PageHeader eyebrow="Leeslijst" title="Jouw leeslijst">{counts.Read} van {books.length} gelezen</PageHeader>
 
         {#if books.length === 0}
-            <div class="flex flex-col items-center text-center bg-surface border-2 border-dashed border-border-soft rounded-lg py-16 px-4">
-                <h2 class="font-display text-xl text-ink font-bold">Je leeslijst is nog leeg</h2>
-                <p class="text-ink-muted font-body mt-1 mb-4">Klik op het hartje bij een boek om het hier te bewaren.</p>
-                <a href="/books" class="bg-accent hover:bg-accent-hover text-white font-display px-4 py-2 transition duration-150">
-                    Blader door de catalogus
-                </a>
-            </div>
+            <EmptyState title="Je leeslijst is nog leeg">
+                Klik op het hartje bij een boek om het hier te bewaren.
+                {#snippet action()}
+                    <a href="/books" class="bg-accent hover:bg-accent-hover text-white font-display px-4 py-2 transition duration-150">
+                        Blader door de catalogus
+                    </a>
+                {/snippet}
+            </EmptyState>
         {:else}
-            <fieldset class="mb-4">
-                <legend class="sr-only">Toon boeken met leesstatus</legend>
-                <div class="flex flex-wrap gap-2">
-                    {#each tabs as tab (tab.value)}
-                        <label class="cursor-pointer select-none rounded-full border-2 border-border-soft px-3 py-1 text-sm font-body text-ink-soft transition duration-150 hover:border-accent has-checked:border-accent has-checked:bg-accent-brown has-checked:text-white has-focus-visible:ring-2 has-focus-visible:ring-accent has-focus-visible:ring-offset-1">
-                            <input class="sr-only" type="radio" name="status-filter" value={tab.value} bind:group={activeTab}/>
-                            {tab.label} <span class="opacity-75">({counts[tab.value]})</span>
-                        </label>
-                    {/each}
-                </div>
-            </fieldset>
+            <ChoiceGroup class="mb-4" legend="Toon boeken met leesstatus" hideLegend name="status-filter" type="radio"
+                         options={tabChoices} bind:value={activeTab}/>
 
             {#if visibleBooks.length === 0}
                 <p class="bg-surface border-2 border-border rounded-lg p-6 text-center font-body text-ink-soft">

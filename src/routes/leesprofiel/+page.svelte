@@ -2,19 +2,24 @@
     import {onMount, untrack} from "svelte";
     import {enhance} from "$app/forms";
     import {beforeNavigate, goto} from "$app/navigation";
+    import ChoiceGroup, {type Choice} from "$lib/components/ChoiceGroup.svelte";
+    import {LENGTH_LABELS, MOTIVATION_LABELS, type ReadingProfile} from "$lib/types";
     let {data, form} = $props()
 
-    type Profile = {
-        languageLevel: "A2"| "B1" | "B2" | "C1",
-        ReadingMotivation: "ForSchool" | "ForPleasure" | "LanguageDevelopment",
-        length: "Short" | "Medium" | "Long",
-        genre: string[]
-    }
+    //Turns a value -> label map into the options of a ChoiceGroup
+    const choices = <T extends string>(labels: Record<T, string>): Choice<T>[] =>
+        (Object.entries(labels) as [T, string][]).map(([value, label]) => ({value, label}))
+
+    const levels: Choice<ReadingProfile["languageLevel"]>[] = (["A2", "B1", "B2", "C1"] as const).map(level => ({value: level, label: level}))
+    const motivations = choices(MOTIVATION_LABELS)
+    const lengths = choices(LENGTH_LABELS)
+    let themes: Choice[] = $derived(data.tags.map((tag: string) => ({value: tag, label: tag})))
+    const card = "w-full p-1 md:p-4 bg-surface rounded-lg border-2 border-accent"
 
     //What ends up in localStorage. `base` is the saved profile the draft started from
-    type Draft = {base: string, profile: Profile}
+    type Draft = {base: string, profile: ReadingProfile}
 
-    const defaults: Profile = {
+    const defaults: ReadingProfile = {
         languageLevel: "A2",
         ReadingMotivation: "ForSchool",
         length: "Short",
@@ -23,7 +28,7 @@
 
     //Only keep the form fields (the server also sends _id, userID, __v) and sort the genres,
     //so ticking a theme off and on again doesn't count as a change
-    function serialize(p: Partial<Profile>): string {
+    function serialize(p: Partial<ReadingProfile>): string {
         const profile = {...defaults, ...p}
         return JSON.stringify({
             languageLevel: profile.languageLevel,
@@ -33,7 +38,7 @@
         })
     }
 
-    let ProfileData: Profile = $state(structuredClone(defaults))
+    let ProfileData: ReadingProfile = $state(structuredClone(defaults))
 
     //Use "update" when the server already has a profile, otherwise "create"
     let SDExists = $derived(!!data.readingList)
@@ -129,50 +134,17 @@
                   }
               }
           }}>
-        <div class="flex flex-col md:flex-row w-full space-y-3 md:space-y-0 md:space-x-2">
-            <div class="flex w-full p-1 md:p-4 flex-col space-y-3 bg-surface rounded-lg border-2 border-accent">
-                <span class="text-accent font-body md:text-2xl md:font-bold">Lees Niveau<span class="text-xl text-red-600">*</span></span>
-                <div class="flex w-full space-x-2 text-xl">
-                    <label class="group cursor-pointer flex transition duration-150 items-center border-2 has-checked:border-accent has-checked:bg-accent-brown has-checked:text-white p-2 rounded-full"><span class="pl-2 pr-2">A2</span> <input class="md:ml-2 sr-only" type="radio" name="languageLevel" value="A2" bind:group={ProfileData.languageLevel} required/></label>
-                    <label class="group cursor-pointer flex transition duration-150 items-center border-2 has-checked:border-accent has-checked:bg-accent-brown has-checked:text-white p-2 rounded-full" id="B1"><span class="pl-2 pr-2">B1</span>  <input class="md:ml-2 sr-only" type="radio" name="languageLevel" value="B1" bind:group={ProfileData.languageLevel}/></label>
-                    <label class="group cursor-pointer flex transition duration-150 items-center border-2 has-checked:border-accent has-checked:bg-accent-brown has-checked:text-white p-2 rounded-full" id="B2"><span class="pl-2 pr-2">B2</span>  <input class="md:ml-2 sr-only" type="radio" name="languageLevel" value="B2" bind:group={ProfileData.languageLevel}/></label>
-                    <label class="group cursor-pointer flex transition duration-150 items-center border-2 has-checked:border-accent has-checked:bg-accent-brown has-checked:text-white p-2 rounded-full" id="C1"><span class="pl-2 pr-2">C1</span>  <input class="md:ml-2 sr-only" type="radio" name="languageLevel" value="C1" bind:group={ProfileData.languageLevel}/></label>
-                </div>
-            </div>
-
-            <div class="flex w-full p-1 md:p-4 flex-col space-y-3 bg-surface rounded-lg border-2 border-accent">
-                <span class="text-accent font-body md:text-2xl md:font-bold">Lees Motivatie<span class="text-xl text-red-600">*</span></span>
-                <div class="flex w-full flex-col space-y-2 md:space-y-0 md:flex-row space-x-2 text-xl">
-                    <label class="group cursor-pointer flex transition duration-150 items-center border-2 has-checked:border-accent has-checked:bg-accent-brown has-checked:text-white p-2 rounded-lg md:rounded-full" id="ForSchool"><span class="pl-2 pr-2">Voor School</span> <input class="md:ml-2 sr-only" type="radio" name="ReadingMotivation" value="ForSchool" bind:group={ProfileData.ReadingMotivation} required/></label>
-                    <label class="group cursor-pointer flex transition duration-150 items-center border-2 has-checked:border-accent has-checked:bg-accent-brown has-checked:text-white p-2 rounded-lg md:rounded-full" id="ForPleasure"><span class="pl-2 pr-2">Voor de lol</span>  <input class="md:ml-2 sr-only" type="radio" name="ReadingMotivation" value="ForPleasure" bind:group={ProfileData.ReadingMotivation}/></label>
-                    <label class="group cursor-pointer flex transition duration-150 items-center border-2 has-checked:border-accent has-checked:bg-accent-brown has-checked:text-white p-2 rounded-lg md:rounded-full" id="LanguageDevelopment"><span class="pl-2 pr-2">Taal Ontwikkeling</span>  <input class="md:ml-2 sr-only" type="radio" name="ReadingMotivation" value="LanguageDevelopment" bind:group={ProfileData.ReadingMotivation}/></label>
-                </div>
-            </div>
-
-            <div class="flex w-full p-1 md:p-4 flex-col space-y-3 bg-surface rounded-lg border-2 border-accent">
-                <span class="text-accent font-body md:text-2xl md:font-bold">Lees materiaal duur<span class="text-xl text-red-600">*</span></span>
-                <div class="flex w-full space-x-2 text-xl">
-                    <label class="group cursor-pointer flex transition duration-150 items-center border-2 has-checked:border-accent has-checked:bg-accent-brown has-checked:text-white p-2 rounded-full" id="Short"><span class="pl-2 pr-2">Kort</span> <input class="md:ml-2 sr-only" type="radio" name="length" value="Short" bind:group={ProfileData.length} required/></label>
-                    <label class="group cursor-pointer flex transition duration-150 items-center border-2 has-checked:border-accent has-checked:bg-accent-brown has-checked:text-white p-2 rounded-full" id="Medium"><span class="pl-2 pr-2">Middel</span>  <input class="md:ml-2 sr-only" type="radio" name="length" value="Medium" bind:group={ProfileData.length}/></label>
-                    <label class="group cursor-pointer flex transition duration-150 items-center border-2 has-checked:border-accent has-checked:bg-accent-brown has-checked:text-white p-2 rounded-full" id="Long"><span class="pl-2 pr-2">Lang</span>  <input class="md:ml-2 sr-only" type="radio" name="length" value="Long" bind:group={ProfileData.length}/></label>
-                </div>
-            </div>
-
+        <div class="flex flex-col md:flex-row w-full gap-3 md:gap-2">
+            <ChoiceGroup class={card} size="lg" legend="Lees Niveau" name="languageLevel" type="radio" required
+                         options={levels} bind:value={ProfileData.languageLevel}/>
+            <ChoiceGroup class={card} size="lg" legend="Lees Motivatie" name="ReadingMotivation" type="radio" required
+                         options={motivations} bind:value={ProfileData.ReadingMotivation}/>
+            <ChoiceGroup class={card} size="lg" legend="Lees materiaal duur" name="length" type="radio" required
+                         options={lengths} bind:value={ProfileData.length}/>
         </div>
 
-        <div class="flex w-full p-1 md:p-4 flex-col space-y-3 bg-surface rounded-lg border-2 border-accent">
-            <span class="text-accent font-body md:text-2xl md:font-bold">Favoriete Thema's<span class="text-xl text-red-600">*</span></span>
-
-            <div class="flex w-full space-x-2 text-xl space-y-2 flex-wrap">
-                {#each data.tags as tag (tag)}
-                    <label class="group cursor-pointer text-md font-bold font-body p-1 md:text-2xl flex transition
-                duration-150 has-checked:border-accent has-checked:bg-amber-100 border-2">
-                        <input name="genre" value={tag} bind:group={ProfileData.genre} type="checkbox" class="sr-only">
-                        <span class="pl-2 pr-2 text-accent">{tag}</span>
-                    </label>
-                {/each}
-            </div>
-        </div>
+        <ChoiceGroup class={card} size="lg" legend="Favoriete Thema's" name="genre" type="checkbox" required
+                     options={themes} bind:value={ProfileData.genre}/>
         {#if draftRestored && !success}
             <div class="w-full p-3 rounded-lg border-2 border-accent bg-tan-bg text-ink font-body flex flex-col md:flex-row md:items-center justify-between gap-2" role="status">
                 <span class="font-bold">Je niet-opgeslagen wijzigingen van de vorige keer zijn teruggezet.</span>
@@ -182,11 +154,11 @@
             </div>
         {/if}
         {#if success}
-            <div class="w-full p-3 rounded-lg border-2 border-green-600 bg-green-100 text-green-800 font-body font-bold md:text-2xl text-xl text-center" role="status">
+            <div class="w-full p-3 rounded-lg border-2 border-sage-border bg-sage-bg text-sage-text font-body font-bold md:text-2xl text-xl text-center" role="status">
                 Je leesprofiel is opgeslagen! Je wordt doorgestuurd naar je leesadvies...
             </div>
         {:else if form?.error}
-            <div class="w-full p-3 rounded-lg border-2 border-red-600 bg-red-100 text-red-800 font-body font-bold md:text-2xl text-xl text-center" role="alert">
+            <div class="w-full p-3 rounded-lg border-2 border-accent bg-accent/10 text-accent-hover font-body font-bold md:text-2xl text-xl text-center" role="alert">
                 {form.error}
             </div>
         {/if}

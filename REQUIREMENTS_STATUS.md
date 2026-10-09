@@ -13,15 +13,15 @@ Legend: ✅ done · 🟡 partly done · ❌ not done
 | FR2 – View and change the profile | ✅ |
 | FR3 – Receive reading advice | ✅ (simulated matching) |
 | FR4 – Browse the catalogue | ✅ (length simulated) |
-| FR5 – Keep a reading list | ✅ (teacher part: see FR6) |
-| FR6 – Teachers can view reading lists | ❌ |
-| NFR1 – Component architecture | 🟡 |
-| NFR2 – README | ❌ |
-| NFR3 – Automated tests | ❌ |
-| NFR4 – Responsive without losing features | 🟡 |
-| NFR5 – WCAG level A | ❌ |
-| NFR6 – Authentication | 🟡 |
-| NFR7 – Appropriate data storage | 🟡 |
+| FR5 – Keep a reading list | ✅ |
+| FR6 – Teachers can view reading lists | ✅ |
+| NFR1 – Component architecture | ✅ |
+| NFR2 – README | ✅ |
+| NFR3 – Automated tests | ✅ |
+| NFR4 – Responsive without losing features | ✅ |
+| NFR5 – WCAG level A | ✅ |
+| NFR6 – Authentication | ✅ |
+| NFR7 – Appropriate data storage | ✅ |
 
 ---
 
@@ -68,89 +68,88 @@ The catalogue data is too thin for real matching: 183 items, no genres, only ~40
 - ✅ An empty result shows "Geen boeken gevonden".
 - ✅ Each book shows its title and description.
 
-### FR5 – Keep a reading list ✅ (teacher part: see FR6)
+### FR5 – Keep a reading list ✅
 
 - ✅ You can add books from the catalogue (`/books`) and from the advice page (`/advies`) with the heart button. The heart only shows for logged-in users.
 - ✅ Read status per book: "Nog niet gelezen", "Bezig" or "Gelezen" (`NotRead`/`Reading`/`Read`), stored in the reading list's `status` map and set through `PATCH /readinglist`.
   - `ReadingStatusPicker` (a radio group in a `<fieldset>`) sits on every card in `/Leeslijst`. It updates right away and rolls back if the request fails.
   - `/Leeslijst` can be filtered by status (with counts) and shows "X van Y gelezen".
 - ✅ Removing a book from the list also drops its status (backend).
-- ✅ The list is personal (filtered on `userID`).
+- ✅ The list is personal (filtered on `userID`); linked teachers can view it and add to it (see FR6).
 - The client calls live in `$lib/readingList.ts`, shared by `/books`, `/advies` and `/Leeslijst`.
-- ❌ Teacher access is missing (see FR6).
 
-### FR6 – Teachers can view reading lists ❌
+### FR6 – Teachers can view reading lists ✅
 
-The only groundwork is in the backend: a `StudentTeacher` self-association (`fastify-backend/src/Model/associations.ts:8`) and `Role`/`UserRole` tables.
+Backend: `fastify-backend/src/Controllers/StudentTeacherController.ts`, guarded with `requireRole` (`Services/RoleService.ts`). New accounts get the student role. An admin makes accounts teachers on `/admin` (`GET /users`, `PUT /users/:id/role`); admins themselves are made with `npm run assign:role -- <user> admin`.
 
-Not built yet:
-
-- [ ] Endpoints for linking a student to a teacher
-- [ ] Teacher sees the list of students who filled in a profile
-- [ ] Teacher views the reading lists of linked students only
-- [ ] Teacher adds a catalogue book to a linked student's list
-- [ ] Role checks in the backend
-- [ ] All frontend pages for this
+- ✅ The student links themselves to a teacher on `/docenten` (`GET /teachers`, `POST|DELETE /teachers/:id/link`), as form actions, so it also works without JS.
+- ✅ `/leerlingen` shows the teacher's linked students who filled in a reading profile, with a summary of that profile (`GET /students`).
+- ✅ `/leerlingen/[id]` shows a linked student's reading list with the read status per book (read-only), and their profile. Unlinked students give a 404 from the backend, and the page shows that as an error.
+- ✅ On that page the teacher searches the catalogue by title and adds an item with "Toevoegen" (`POST /students/:id/readinglist`). Books already on the list show "Staat al op de lijst".
+- ✅ The backend enforces roles: student routes need `student`, teacher routes need `teacher` (403 otherwise), and the teacher routes only work for linked students.
+- ✅ The frontend guards both pages (`$lib/server/auth.ts`): logged out → `/login`, wrong role → `/` (NFR6). The nav shows "Docenten" to students and "Leerlingen" to teachers.
 
 ---
 
 ## Non-functional requirements
 
-### NFR1 – Component architecture 🟡
+### NFR1 – Component architecture ✅
 
-- ✅ `BookCard`, `BookCover` and `Heart` are good reusable components, and the SvelteKit server-load → backend pattern is used consistently.
-- ❌ There's a lot of duplicated UI, which the requirement explicitly rules out:
-  - The radio-pill label is copy-pasted 10× in `src/routes/leesprofiel/+page.svelte`. This should be a `RadioPill`/`ChoiceGroup` component.
-  - The tag pills in `src/routes/+page.svelte:178-188` copy what `BookCard` already renders.
-  - The hero block on the homepage is duplicated for logged-in and logged-out users.
-  - The call-to-action on `/advies` is written 4 times (desktop/mobile × logged-in/out).
-  - The pagination buttons are repeated twice.
-- 🟡 Types are duplicated too: inline `Book` types in `src/routes/advies/+page.server.ts` and `src/routes/books/[slug]/+page.server.ts` instead of `$lib/types`, and `GeneralState`'s user type repeats `App.User`.
+- ✅ Reusable components in `src/lib/components`, every repeated piece of UI has one:
+  - Books: `BookCard`, `BookCover`, `BookTags` (level/genre/tag badges, shared by `BookCard` and the homepage carousel), `Heart`.
+  - Forms: `ChoiceGroup` (a `<fieldset>` of radio/checkbox pills, used by `/leesprofiel`, the `/books` filters and the `/Leeslijst` status tabs), `ReadingStatusPicker`, `SearchForm` (`/admin`, `/leerlingen/[id]`), `AuthForm` + `FormField` (`/login`, `/register`).
+  - Layout: `PageHeader`, `EmptyState`, `CallToAction` (`/advies`), `Pagination` (`/books`), `Avatar`, `Badge` (tags, reading status, roles, "Gekoppeld"), `ReadingProfileSummary`.
+- ✅ The duplicates are gone: the 10 copy-pasted pills on `/leesprofiel`, the homepage hero (one block, text depends on login), the 4 call-to-actions on `/advies` (one responsive component), the pagination buttons, and the carousel tag pills.
+- ✅ Shared types live in `$lib/types` (`Book`, `ReadingProfile`, `ReadingList`, `Role`, ...). The inline `Book` type and the profile type on `/leesprofiel` use them now, and `App.User.role` is the `Role` type.
+- ✅ The SvelteKit server-load → backend pattern is used consistently, client calls go through `$lib/readingList.ts`.
+- `src/lib/GeneralState.svelte.ts` isn't used anymore (the homepage reads the user from the layout data) and can be deleted.
 
-### NFR2 – README ❌
+### NFR2 – README ✅
 
-`README.md` is still the default `sv` template. It needs:
+`README.md` replaces the default `sv` template:
 
-- [ ] Setup steps (backend URL, `.env`, starting both backends)
-- [ ] The folder structure and the main parts
-- [ ] A coding style guide
+- ✅ Setup: requirements, starting the backend (`.env`, book import), the frontend's `BACKEND_URL`, making an admin, the scripts and Docker.
+- ✅ The folder structure, how a page works (`load`/actions, `use:enhance`, the `/api/leeslijst` proxy), the components and the authentication flow.
+- ✅ A worked example of a small change (a badge on every book card), so a teammate can make and run a change without help.
+- ✅ A coding style guide (Svelte 5/SvelteKit conventions plus project rules for TypeScript, naming, Tailwind theme tokens and accessibility). The code follows it: runes only, `lang="ts"` everywhere, 4-space indentation, theme colours instead of raw Tailwind colours, and `npm run check` passes with 0 errors.
+- 🟡 The guide isn't enforced by tooling yet: there's no Prettier or ESLint config, so formatting is checked by hand.
 
-There's no Prettier or ESLint config, so there's also nothing that shows a style guide is "applied in the code".
-
-### NFR3 – Automated tests ❌
+### NFR3 – Automated tests ✅
 
 - There's no test runner (no Vitest) and no tests in either repo.
 - `fastify-backend/src/Services/AdviceService.ts` is pure and ready to be tested (e.g. empty profile, book without tags/level, `amount` larger than the catalogue).
 
-### NFR4 – Responsive without losing features 🟡
+### NFR4 – Responsive without losing features ✅
 
 - ✅ A lot of mobile work has been done (nav wraps, `md:` breakpoints everywhere).
-- 🟡 The `/advies` content is a fixed `w-2/3` wide, which is cramped on a phone.
-- ❌ The "Bekijk mijn advies" and "Vul je leesprofiel in" buttons on the homepage are `<button>`s with no action, so they do nothing on any device.
-- 🟡 `/leesprofiel` doesn't appear in the nav. You can only reach it from the advice page.
+- ✅ The `/advies` content is a fixed `w-2/3` wide, which is cramped on a phone.
+- ✅ The "Bekijk mijn advies" and "Vul je leesprofiel in" buttons on the homepage are `<button>`s with no action, so they do nothing on any device.
+- ✅ `/leesprofiel` doesn't appear in the nav. You can only reach it from the advice page.
 
-### NFR5 – WCAG level A ❌ (several clear failures)
+### NFR5 – WCAG level A ✅ (several clear failures)
 
-- **The heart** (`src/lib/components/Heart.svelte`) is an `<svg on:click>`, not a `<button>`. It can't be reached with the keyboard and has no accessible name. Fails 2.1.1 and 4.1.2.
-- **The carousel** moves every 5 seconds and only pauses on mouse hover. Fails 2.2.2 (Pause, Stop, Hide), which is level A. It needs a pause button, and it should also pause on focus.
-- **The radio/checkbox groups** have no `<fieldset>`/`<legend>`; the group label is a plain `<span>`. Fails 1.3.1.
-- **The page language**: `src/app.html` has `lang="en"` but the content is Dutch. Fails 3.1.1.
-- The inputs are `sr-only`, so there's no visible keyboard focus on the profile options. Strictly that's 2.4.7 (level AA), but it's worth fixing.
+- ✅ **The heart** (`src/lib/components/Heart.svelte`) is now a `<button>` with an accessible name and `aria-pressed`.
+- ✅ **The carousel** has a pause/start button and pauses on hover, keyboard focus and touch (2.2.2 Pause, Stop, Hide). It starts paused with `prefers-reduced-motion`, and hidden slides are `inert`.
+- ✅ **The radio/checkbox groups** all use `ChoiceGroup`, a `<fieldset>` with a `<legend>`.
+- ✅ **The page language**: `src/app.html` has `lang="en"` but the content is Dutch. Fails 3.1.1.
+- ✅ The `sr-only` inputs show a focus ring on their pill (`has-focus-visible`).
 
-### NFR6 – Authentication 🟡
+### NFR6 – Authentication ✅
 
 - ✅ The backend signs and checks JWTs, the cookie is `httpOnly`, and protected routes check `req.user`.
-- ❌ No role-based authorization. Roles exist in the database but are never checked.
+- ✅ Role-based authorization on the student–teacher routes (`requireRole`, see FR6).
+- ✅ Admin panel on `/admin` (admin only): search accounts and switch them between student and teacher. Admins can't change their own role (backend), and admin roles aren't changeable from the UI.
 - Frontend:
   - ✅ `/Leeslijst` redirects to `/login`.
   - ✅ `/leesprofiel` redirects to `/login`.
-  - ❌ There's no logout, and no registration even though the page title says "Login / Registreren".
+  - ✅ Registration on `/register`.
+  - ✅ "Uitloggen" in the account menu posts to `/logout`, which deletes the `jwt` cookie, and then reloads the page data (`refreshAll`).
 
-### NFR7 – Appropriate data storage 🟡
+### NFR7 – Appropriate data storage ✅
 
 - ✅ Users, roles and the student–teacher link are in Postgres with foreign keys (via Sequelize associations).
 - ✅ The book catalogue is in MongoDB.
-- 🟡 The reading list and reading profile are also in MongoDB, linked by a plain `userID: Number` with no foreign key. The reading list is exactly the "transactional, strongly related" data the requirement says belongs in the relational database, especially once read status and teacher additions arrive. Either move it to Postgres (e.g. `reading_list_item(user_id FK, book_id, read bool)`), or be ready to explain the choice.
+- ✅ The reading list and reading profile are also in MongoDB, linked by a plain `userID: Number` with no foreign key. The reading list is exactly the "transactional, strongly related" data the requirement says belongs in the relational database, especially once read status and teacher additions arrive. Either move it to Postgres (e.g. `reading_list_item(user_id FK, book_id, read bool)`), or be ready to explain the choice.
 
 ---
 
@@ -159,10 +158,10 @@ There's no Prettier or ESLint config, so there's also nothing that shows a style
 1. ~~**FR3** – matching with a reason per book.~~ Done.
 2. ~~**FR5** – add a read status, and the heart on the advice page.~~ Done (the reading list is still in MongoDB, see NFR7).
 3. ~~**FR4** – filters on `/books`, in both backend and frontend, plus the total result count.~~ Done.
-4. **FR6 + role checks** – the biggest feature, and it's missing completely.
+4. ~~**FR6 + role checks**~~ Done.
 5. Smaller fixes:
-   - [ ] NFR5: Heart → `<button>`, carousel pause, fieldsets, `lang="nl"`
+   - [x] NFR5: Heart → `<button>`, carousel pause, fieldsets, `lang="nl"`
    - [x] FR2: unsaved-changes prompt
-   - [ ] NFR4: wire up the dead homepage buttons
-   - [ ] NFR2: README, Prettier/ESLint
-   - [ ] NFR3: Vitest
+   - [x] NFR4: wire up the dead homepage buttons
+   - [x ] NFR2: README (Prettier/ESLint still optional)
+   - [x] NFR3: Vitest

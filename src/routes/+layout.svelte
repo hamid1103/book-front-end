@@ -2,24 +2,28 @@
     import './layout.css';
     import favicon from '$lib/assets/favicon.svg';
     import { page } from '$app/state'
-    import {GeneralState} from "$lib/GeneralState.svelte.ts";
-    const links = [
+    import {refreshAll} from "$app/navigation";
+    let {data, children} = $props();
+    let user = $derived(data.user)
+
+    // Deletes the session cookie, then reruns the load functions so the page shows the logged out state.
+    // Pages that need a login redirect to /login from their load
+    const Uitloggen = async ()=>{
+        await fetch('/logout', {method: 'POST'})
+        await refreshAll()
+    }
+
+    // Students link themselves to a teacher, teachers see their linked students (FR6)
+    let links = $derived([
         {href: '/', label: 'Home'},
         {href: '/books', label: 'Catalogue'},
         {href: '/Leeslijst', label: 'Leeslijst'},
         {href: "/advies", label: 'Advies'},
-    ]
-
-    let {data, children} = $props();
-    let user = $derived(data.user)
-    let books = $derived(data.book)
-
-    $effect(()=>{
-        GeneralState.user = user;
-        GeneralState.readinglist = books;
-    })
-
-    const isActive = (href) => href === '/'? page.url.pathname === '/' : page.url.pathname.startsWith(href)
+        ...(user?.role === 'student' ? [{href: '/docenten', label: 'Docenten'}] : []),
+        ...(user?.role === 'teacher' ? [{href: '/leerlingen', label: 'Leerlingen'}] : []),
+        ...(user?.role === 'admin' ? [{href: '/admin', label: 'Beheer'}] : []),
+    ])
+    const isActive = (href: string) => href === '/'? page.url.pathname === '/' : page.url.pathname.startsWith(href)
 
 </script>
 
@@ -55,7 +59,7 @@
                         {#if user}
                             <p class="font-display font-bold text-ink">{user.userName}</p>
                             <p class="text-sm text-ink-muted truncate">{user.email}</p>
-                            <a  class="text-accent cursor-pointer text-sm md:text-md font-display">Uitloggen</a>
+                            <button type="button" onclick={Uitloggen} class="text-accent hover:underline cursor-pointer text-sm md:text-md font-display">Uitloggen</button>
                         {:else}
                             <p class="text-sm text-ink-muted mb-3">Je bent niet ingelogd.</p>
                             <a href="/login" class="block text-center rounded-md bg-accent hover:bg-accent-hover text-ivory font-semibold py-1.5">

@@ -2,6 +2,7 @@
     import type {Book} from "$lib/types";
     import Heart from "$lib/components/Heart.svelte";
     import BookCover from "$lib/components/BookCover.svelte";
+    import BookTags from "$lib/components/BookTags.svelte";
     import type {Snippet} from "svelte";
 
     // The heart is only shown when onToggle is passed (e.g. not for logged out users)
@@ -24,8 +25,9 @@
                 <p class="font-body text-ink-muted italic text-sm">{book.author}</p>
             </a>
             {#if onToggle}
-                <div class="w-7 h-7 shrink-0" title={inReadingList ? "Verwijder van leeslijst" : "Voeg toe aan leeslijst"}>
-                    <Heart filled={inReadingList} action={onToggle}></Heart>
+                <div class="w-7 h-7 shrink-0">
+                    <Heart filled={inReadingList} action={onToggle}
+                           label="{inReadingList ? 'Verwijder' : 'Voeg'} {book.title} {inReadingList ? 'van' : 'toe aan'} leeslijst"/>
                 </div>
             {/if}
         </div>
@@ -39,17 +41,7 @@
             </div>
         {/if}
 
-        <div class="flex flex-wrap gap-1.5 mt-auto pt-3">
-            {#each book.readingLevel ?? [] as level}
-                <span class="text-xs font-semibold font-body px-2 py-0.5 rounded-full bg-tan-bg text-tan-text">{level}</span>
-            {/each}
-            {#each book.genre ?? [] as genre}
-                <span class="text-xs font-body px-2 py-0.5 rounded-full bg-sage-bg text-sage-text border border-sage-border">{genre}</span>
-            {/each}
-            {#each book.tags ?? [] as tag}
-                <span class="text-xs font-body px-2 py-0.5 rounded-full border border-border-soft text-ink-muted">#{tag}</span>
-            {/each}
-        </div>
+        <BookTags {book}/>
 
         {@render children?.()}
     </div>

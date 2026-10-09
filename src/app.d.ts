@@ -1,21 +1,21 @@
 // See https://svelte.dev/docs/kit/types#app.d.ts
 // for information about these interfaces
 declare global {
-	namespace App {
-		// interface Error {}
-		interface User {
-			id: string;
-			email: string;
-			userName: string;
-			role: string;
-		}
-		interface Locals {
-			user: User | null;
-		}
-		// interface PageData {}
-		// interface PageState {}
-		// interface Platform {}
-	}
+    namespace App {
+        // interface Error {}
+        interface User {
+            id: string;
+            email: string;
+            userName: string;
+            role: import('$lib/types').Role;
+        }
+        interface Locals {
+            user: User | null;
+        }
+        // interface PageData {}
+        // interface PageState {}
+        // interface Platform {}
+    }
 }
 
 export {};

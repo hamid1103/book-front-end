@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type {ReadingStatus} from "$lib/types";
+    import {READING_STATUS_LABELS, type ReadingStatus} from "$lib/types";
 
     let {bookId, title, status, onChange}: {
         bookId: string,
@@ -9,11 +9,8 @@
         onChange: (status: ReadingStatus) => void,
     } = $props();
 
-    const options: {value: ReadingStatus, label: string}[] = [
-        {value: 'NotRead', label: 'Nog niet gelezen'},
-        {value: 'Reading', label: 'Bezig'},
-        {value: 'Read', label: 'Gelezen'},
-    ];
+    const options = (Object.entries(READING_STATUS_LABELS) as [ReadingStatus, string][])
+        .map(([value, label]) => ({value, label}));
 </script>
 
 <fieldset class="mt-3">
