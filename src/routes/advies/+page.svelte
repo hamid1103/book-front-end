@@ -33,7 +33,7 @@
         {:else}
             <CallToAction
                 text="Wil je persoonlijk leesadvies?"
-                href="/login"
+                href="/inloggen"
                 linkLabel="Inloggen"
             />
         {/if}

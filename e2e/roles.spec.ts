@@ -29,7 +29,7 @@ test('a student links to a teacher, who then adds a book to their list', async (
 
     // The student sees the book on their own list
     await loginAs('student');
-    await page.goto('/Leeslijst');
+    await page.goto('/leeslijst');
     await expect(page.getByRole('heading', { level: 2 })).toHaveText(['De Hobbit']);
 });
 
@@ -48,7 +48,7 @@ test('a teacher can not open the list of a student that is not linked', async ({
 
 test('an admin makes a student a teacher', async ({ page, loginAs }) => {
     await loginAs('admin');
-    await page.goto('/admin');
+    await page.goto('/beheer');
     await expect(page.getByText('4 accounts · 1 docenten')).toBeVisible();
     // Admins can't change their own role
     await expect(page.getByRole('button', { name: /anouk$/ })).toHaveCount(0);

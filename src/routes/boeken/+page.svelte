@@ -72,7 +72,7 @@
              Leaving `page` out means a new filter always starts at page 1 -->
         <form
             method="GET"
-            action="/books"
+            action="/boeken"
             role="search"
             aria-label="Catalogus filteren"
             data-sveltekit-keepfocus
@@ -146,7 +146,7 @@
                 </p>
                 {#if activeFilterCount > 0}
                     <a
-                        href="/books?limit={meta.limit}"
+                        href="/boeken?limit={meta.limit}"
                         data-sveltekit-noscroll
                         class="text-accent underline hover:text-accent-hover"
                         >Filters wissen ({activeFilterCount})</a
@@ -157,7 +157,7 @@
 
         <!-- The results are server rendered (so they're in the HTML for search engines), the skeleton only
              shows during client-side navigation: filters, pagination, or coming here from another page -->
-        {#if navigating.to?.route.id === '/books'}
+        {#if navigating.to?.route.id === '/boeken'}
             <p class="sr-only" role="status">Boeken laden…</p>
             <div class="grid w-full grid-cols-1 gap-4 md:grid-cols-2">
                 <BookCardSkeleton count={Math.min(meta.limit, 6)} />

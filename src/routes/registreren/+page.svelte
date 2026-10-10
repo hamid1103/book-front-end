@@ -57,6 +57,8 @@
 
     {#snippet footer()}
         Heb je al een account?
-        <a href="/login" class="font-display font-bold text-accent hover:underline">Log hier in</a>
+        <a href="/inloggen" class="font-display font-bold text-accent hover:underline"
+            >Log hier in</a
+        >
     {/snippet}
 </AuthForm>

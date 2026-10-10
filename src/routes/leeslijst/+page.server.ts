@@ -5,7 +5,7 @@ import type { Book, ReadingList } from '$lib/types';
 
 export const load: PageServerLoad = async ({ fetch, locals }) => {
     if (!locals.user) {
-        redirect(307, '/login');
+        redirect(307, '/inloggen');
     }
 
     const readingListData = await fetch(`${BACKEND_URL}/readinglist?onlyId=false`);

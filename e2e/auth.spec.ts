@@ -2,7 +2,7 @@ import { accounts, expect, openAccountMenu, PASSWORD, test } from './fixtures';
 
 test.describe('Registreren', () => {
     test('new account goes to the reading profile and is logged in', async ({ page }) => {
-        await page.goto('/register');
+        await page.goto('/registreren');
         await page.getByLabel('Gebruikersnaam').fill('lotte');
         await page.getByLabel('E-mailadres').fill('lotte@school.nl');
         await page.getByLabel('Wachtwoord', { exact: true }).fill(PASSWORD);
@@ -19,7 +19,7 @@ test.describe('Registreren', () => {
     test('shows an error when the passwords differ and keeps the typed values', async ({
         page
     }) => {
-        await page.goto('/register');
+        await page.goto('/registreren');
         await page.getByLabel('Gebruikersnaam').fill('lotte');
         await page.getByLabel('E-mailadres').fill('lotte@school.nl');
         await page.getByLabel('Wachtwoord', { exact: true }).fill(PASSWORD);
@@ -27,13 +27,13 @@ test.describe('Registreren', () => {
         await page.getByRole('button', { name: 'Account aanmaken' }).click();
 
         await expect(page.getByRole('alert')).toContainText('De wachtwoorden komen niet overeen.');
-        await expect(page).toHaveURL('/register');
+        await expect(page).toHaveURL('/registreren');
         await expect(page.getByLabel('Gebruikersnaam')).toHaveValue('lotte');
         await expect(page.getByLabel('E-mailadres')).toHaveValue('lotte@school.nl');
     });
 
     test('translates the backend error for an email that is taken', async ({ page }) => {
-        await page.goto('/register');
+        await page.goto('/registreren');
         await page.getByLabel('Gebruikersnaam').fill('nieuw');
         await page.getByLabel('E-mailadres').fill(accounts.student.email);
         await page.getByLabel('Wachtwoord', { exact: true }).fill(PASSWORD);
@@ -48,7 +48,7 @@ test.describe('Registreren', () => {
 
 test.describe('Inloggen', () => {
     test('logs in, greets the user and logs out again', async ({ page }) => {
-        await page.goto('/login');
+        await page.goto('/inloggen');
         await page.getByLabel('E-mailadres').fill(accounts.student.email);
         await page.getByLabel('Wachtwoord').fill(PASSWORD);
         await page.getByRole('button', { name: 'Inloggen' }).click();
@@ -68,7 +68,7 @@ test.describe('Inloggen', () => {
     });
 
     test('shows an error for a wrong password and hides it while typing', async ({ page }) => {
-        await page.goto('/login');
+        await page.goto('/inloggen');
         await page.getByLabel('E-mailadres').fill(accounts.student.email);
         await page.getByLabel('Wachtwoord').fill('fout-wachtwoord');
         await page.getByRole('button', { name: 'Inloggen' }).click();
@@ -84,22 +84,22 @@ test.describe('Inloggen', () => {
 
     test('logged in users are sent away from the login page', async ({ page, loginAs }) => {
         await loginAs('student');
-        await page.goto('/login');
+        await page.goto('/inloggen');
         await expect(page).toHaveURL('/');
     });
 });
 
 test.describe('Toegang', () => {
-    test('pages that need a login redirect to /login', async ({ page }) => {
-        for (const path of ['/Leeslijst', '/leesprofiel', '/docenten', '/leerlingen', '/admin']) {
+    test('pages that need a login redirect to /inloggen', async ({ page }) => {
+        for (const path of ['/leeslijst', '/leesprofiel', '/docenten', '/leerlingen', '/beheer']) {
             await page.goto(path);
-            await expect(page, `${path} should redirect`).toHaveURL('/login');
+            await expect(page, `${path} should redirect`).toHaveURL('/inloggen');
         }
     });
 
     test('a student can not open the teacher and admin pages', async ({ page, loginAs }) => {
         await loginAs('student');
-        for (const path of ['/leerlingen', '/admin']) {
+        for (const path of ['/leerlingen', '/beheer']) {
             await page.goto(path);
             await expect(page, `${path} should redirect`).toHaveURL('/');
         }

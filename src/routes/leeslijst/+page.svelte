@@ -71,7 +71,7 @@
                 Klik op het hartje bij een boek om het hier te bewaren.
                 {#snippet action()}
                     <a
-                        href="/books"
+                        href="/boeken"
                         class="bg-accent px-4 py-2 font-display text-white transition duration-150 hover:bg-accent-hover"
                     >
                         Blader door de catalogus

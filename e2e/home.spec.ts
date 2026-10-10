@@ -4,7 +4,7 @@ test('logged out visitors are invited to register', async ({ page }) => {
     await page.goto('/');
     await expect(page).toHaveTitle('Bookie · Leesadvies dat bij je past');
     await page.getByRole('link', { name: 'Maak een account aan' }).click();
-    await expect(page).toHaveURL('/register');
+    await expect(page).toHaveURL('/registreren');
 });
 
 test('the advice carousel can be paused and navigated', async ({ page }) => {
@@ -29,7 +29,7 @@ test('the main nav links work', async ({ page }) => {
     const nav = page.getByRole('navigation').first();
 
     await nav.getByRole('link', { name: 'Catalogus' }).click();
-    await expect(page).toHaveURL('/books');
+    await expect(page).toHaveURL('/boeken');
     await expect(nav.getByRole('link', { name: 'Catalogus' })).toHaveAttribute(
         'aria-current',
         'page'

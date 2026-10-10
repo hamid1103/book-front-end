@@ -23,7 +23,7 @@ describe('ErrorState', () => {
 
     it('offers a login link for 401', () => {
         render(ErrorState, { status: 401 });
-        expect(screen.getByRole('link', { name: 'Inloggen' })).toHaveAttribute('href', '/login');
+        expect(screen.getByRole('link', { name: 'Inloggen' })).toHaveAttribute('href', '/inloggen');
     });
 
     it('offers a retry for server errors and falls back to a generic text', () => {

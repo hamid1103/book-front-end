@@ -48,14 +48,14 @@ npm run dev             # http://localhost:5173
 
 ### 3. Create accounts
 
-Register on `/register`. New accounts are students. To try the other roles:
+Register on `/registreren`. New accounts are students. To try the other roles:
 
 ```sh
 # in ../fastify-backend
 npm run assign:role -- <username or email> Admin
 ```
 
-An admin can then make other accounts teachers on `/admin`. A student links themselves to a teacher on `/docenten`.
+An admin can then make other accounts teachers on `/beheer`. A student links themselves to a teacher on `/docenten`.
 
 ### Scripts
 
@@ -117,7 +117,7 @@ Each route folder holds up to two files:
 - **`+page.server.ts`** runs on the server only. `load` fetches what the page needs from the backend, and `actions` handle form posts (saving, linking, …). Guards like `requireRole(locals, 'teacher')` go at the top of both.
 - **`+page.svelte`** shows the data. It gets the result of `load` as `data` and the result of an action as `form`.
 
-Forms are plain HTML forms with `use:enhance`, so they also work without JavaScript. The heart button and the read status on `/Leeslijst` are the exceptions: they call `$lib/readingList.ts`, which posts to `/api/leeslijst`, so the page doesn't reload.
+Forms are plain HTML forms with `use:enhance`, so they also work without JavaScript. The heart button and the read status on `/leeslijst` are the exceptions: they call `$lib/readingList.ts`, which posts to `/api/leeslijst`, so the page doesn't reload.
 
 ### Components
 
@@ -136,10 +136,10 @@ Everything in `src/lib/components` is reused on several pages. When you need a p
 
 ### Authentication
 
-1. `/login` and `/register` post to the backend, get a JWT back and store it in the `jwt` cookie (`httpOnly`, so scripts in the page can't read it).
+1. `/inloggen` and `/registreren` post to the backend, get a JWT back and store it in the `jwt` cookie (`httpOnly`, so scripts in the page can't read it).
 2. `hooks.server.ts` reads the cookie on every request, asks the backend `/me` who it belongs to and puts the result in `locals.user`. An invalid or expired token deletes the cookie.
 3. `handleFetch` in the same file adds `Authorization: Bearer <token>` to every request to `BACKEND_URL`. Always use the `fetch` that `load` and actions get as an argument, not the global one, or the token is missing.
-4. Pages that need a login redirect to `/login`. Pages for one role use `requireRole`. The backend checks the role too, the frontend guard only keeps people away from pages they can't use.
+4. Pages that need a login redirect to `/inloggen`. Pages for one role use `requireRole`. The backend checks the role too, the frontend guard only keeps people away from pages they can't use.
 
 ---
 
@@ -154,7 +154,7 @@ Say you want to show the material type ("boek", "artikel", …) on every book ca
         <Badge>{book.materialType}</Badge>
     {/if}
     ```
-3. Run `npm run dev` and open `/books`, `/advies` or `/Leeslijst`. The badge shows on all of them, and in the homepage carousel.
+3. Run `npm run dev` and open `/boeken`, `/advies` or `/leeslijst`. The badge shows on all of them, and in the homepage carousel.
 4. Run `npm run format`, then `npm run check` and `npm run lint`, and make sure both report 0 errors.
 
 A new page works the same way: add a folder under `src/routes` with a `+page.server.ts` that fetches from `BACKEND_URL` and a `+page.svelte` that shows `data`. Add the link to `links` in `src/routes/+layout.svelte` to put it in the navigation.

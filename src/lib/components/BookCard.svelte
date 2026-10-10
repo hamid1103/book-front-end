@@ -6,7 +6,7 @@
     import type { Snippet } from 'svelte';
 
     // The heart is only shown when onToggle is passed (e.g. not for logged out users)
-    // children is rendered at the bottom of the card, e.g. the reading status on /Leeslijst
+    // children is rendered at the bottom of the card, e.g. the reading status on /leeslijst
     let {
         book,
         inReadingList = false,
@@ -27,7 +27,7 @@
 
     <div class="flex min-w-0 flex-1 flex-col">
         <div class="flex justify-between gap-2">
-            <a href="/books/{book._id}" class="min-w-0">
+            <a href="/boeken/{book._id}" class="min-w-0">
                 <h2
                     class="font-display text-lg leading-tight font-bold text-ink transition group-hover:text-accent"
                 >

@@ -4,7 +4,7 @@ import { expect, pill, test } from './fixtures';
 
 test.describe('Catalogus', () => {
     test('lists the first page of books', async ({ page }) => {
-        await page.goto('/books');
+        await page.goto('/boeken');
 
         await expect(page.getByRole('heading', { name: 'Blader door alle boeken' })).toBeVisible();
         await expect(page.getByText('12 resultaten')).toBeVisible();
@@ -13,7 +13,7 @@ test.describe('Catalogus', () => {
     });
 
     test('pages through the results', async ({ page }) => {
-        await page.goto('/books');
+        await page.goto('/boeken');
         await page.getByRole('button', { name: 'Volgende pagina' }).click();
 
         await expect(page).toHaveURL(/page=2/);
@@ -26,7 +26,7 @@ test.describe('Catalogus', () => {
     });
 
     test('searches on title', async ({ page }) => {
-        await page.goto('/books');
+        await page.goto('/boeken');
         await page.getByRole('searchbox', { name: 'Zoek op titel' }).fill('hobbit');
         await page.getByRole('button', { name: 'Zoeken' }).click();
 
@@ -36,13 +36,13 @@ test.describe('Catalogus', () => {
     });
 
     test('shows a message when nothing matches', async ({ page }) => {
-        await page.goto('/books?q=bestaat-niet');
+        await page.goto('/boeken?q=bestaat-niet');
         await expect(page.getByText('Geen boeken gevonden')).toBeVisible();
         await expect(page.getByRole('navigation', { name: 'Paginering' })).toHaveCount(0);
     });
 
     test('filters on level and clears the filters again', async ({ page }) => {
-        await page.goto('/books');
+        await page.goto('/boeken');
         // The checkboxes are visually hidden inside pill labels, so click the label
         await page.getByRole('group', { name: 'Niveau' }).getByText('3F+').click();
 
@@ -56,7 +56,7 @@ test.describe('Catalogus', () => {
     });
 
     test('filters on theme', async ({ page }) => {
-        await page.goto('/books');
+        await page.goto('/boeken');
         await page.locator('summary', { hasText: "Thema's" }).click();
         await pill(page, 'checkbox', '#oorlog').click();
 
@@ -69,10 +69,10 @@ test.describe('Catalogus', () => {
     });
 
     test('opens the detail page of a book', async ({ page }) => {
-        await page.goto('/books');
+        await page.goto('/boeken');
         await page.getByRole('heading', { name: 'De Hobbit' }).click();
 
-        await expect(page).toHaveURL('/books/book1');
+        await expect(page).toHaveURL('/boeken/book1');
         await expect(page).toHaveTitle('De Hobbit · Bookie');
         await expect(page.getByRole('heading', { level: 1 })).toHaveText('De Hobbit');
         await expect(page.getByText('Beschrijving van boek 1.')).toBeVisible();
@@ -81,18 +81,18 @@ test.describe('Catalogus', () => {
         await expect(page.getByRole('link', { name: 'Log in' })).toBeVisible();
 
         await page.getByRole('link', { name: '← Terug naar de catalogus' }).click();
-        await expect(page).toHaveURL('/books');
+        await expect(page).toHaveURL('/boeken');
     });
 
     test('logged out users do not get the reading list hearts', async ({ page }) => {
-        await page.goto('/books');
+        await page.goto('/boeken');
         await expect(page.getByRole('button', { name: /leeslijst$/ })).toHaveCount(0);
     });
 });
 
 test.describe('Foutpagina', () => {
     test('unknown book shows the 404 page', async ({ page }) => {
-        const response = await page.goto('/books/bestaat-niet');
+        const response = await page.goto('/boeken/bestaat-niet');
         expect(response?.status()).toBe(404);
         await expect(page.getByRole('heading', { name: 'Pagina niet gevonden' })).toBeVisible();
 

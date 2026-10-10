@@ -3,13 +3,15 @@
     import favicon from '$lib/assets/favicon.svg';
     import { page, navigating } from '$app/state';
     import { refreshAll } from '$app/navigation';
+    import { fly } from 'svelte/transition';
+    import { notice, clearNotice } from '$lib/notice.svelte';
     let { data, children } = $props();
     let user = $derived(data.user);
 
     // Deletes the session cookie, then reruns the load functions so the page shows the logged out state.
-    // Pages that need a login redirect to /login from their load
+    // Pages that need a login redirect to /inloggen from their load
     const Uitloggen = async () => {
-        await fetch('/logout', { method: 'POST' });
+        await fetch('/uitloggen', { method: 'POST' });
         menuOpen = false;
         await refreshAll();
     };
@@ -17,12 +19,12 @@
     // Students link themselves to a teacher, teachers see their linked students (FR6)
     let links = $derived([
         { href: '/', label: 'Home' },
-        { href: '/books', label: 'Catalogus' },
-        { href: '/Leeslijst', label: 'Leeslijst' },
+        { href: '/boeken', label: 'Catalogus' },
+        { href: '/leeslijst', label: 'Leeslijst' },
         { href: '/advies', label: 'Advies' },
         ...(user?.role === 'student' ? [{ href: '/docenten', label: 'Docenten' }] : []),
         ...(user?.role === 'teacher' ? [{ href: '/leerlingen', label: 'Leerlingen' }] : []),
-        ...(user?.role === 'admin' ? [{ href: '/admin', label: 'Beheer' }] : [])
+        ...(user?.role === 'admin' ? [{ href: '/beheer', label: 'Beheer' }] : [])
     ]);
     const isActive = (href: string) =>
         href === '/' ? page.url.pathname === '/' : page.url.pathname.startsWith(href);
@@ -42,10 +44,11 @@
     function onWindowClick(e: MouseEvent) {
         if (menuOpen && !menu.contains(e.target as Node)) menuOpen = false;
     }
-    // Close the menu after navigating, e.g. to /login
+    // Close the menu and the error message after navigating, e.g. to /inloggen
     $effect(() => {
         void page.url.pathname;
         menuOpen = false;
+        clearNotice();
     });
 </script>
 
@@ -133,7 +136,7 @@
                         {:else}
                             <p class="mb-3 text-sm text-ink-muted">Je bent niet ingelogd.</p>
                             <a
-                                href="/login"
+                                href="/inloggen"
                                 class="block rounded-md bg-accent py-1.5 text-center font-semibold text-ivory hover:bg-accent-hover"
                             >
                                 Inloggen
@@ -148,4 +151,25 @@
     <main id="main" tabindex="-1" class="h-full w-full outline-none">
         {@render children()}
     </main>
+    <!-- Always in the DOM, so screen readers announce the message when it's added -->
+    <div
+        aria-live="assertive"
+        class="pointer-events-none fixed inset-x-0 bottom-0 z-50 flex justify-center p-4"
+    >
+        {#if notice.message}
+            <div
+                class="pointer-events-auto flex w-full max-w-md items-start gap-3 rounded-md border border-l-4 border-accent/30 border-l-accent bg-surface p-3 font-body text-sm text-ink-soft shadow-lg"
+                transition:fly={{ y: 8, duration: 200 }}
+            >
+                <p class="flex-1">{notice.message}</p>
+                <button
+                    type="button"
+                    onclick={clearNotice}
+                    aria-label="Melding sluiten"
+                    class="cursor-pointer rounded px-1 font-bold text-accent hover:text-accent-hover focus-visible:ring-2 focus-visible:ring-accent"
+                    >✕</button
+                >
+            </div>
+        {/if}
+    </div>
 </div>

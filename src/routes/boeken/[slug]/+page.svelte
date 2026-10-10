@@ -45,7 +45,7 @@
 <div class="min-h-full w-full bg-ivory px-4 py-6 md:py-8">
     <div class="mx-auto max-w-3xl">
         <a
-            href="/books"
+            href="/boeken"
             class="mb-4 inline-block font-body text-sm text-accent underline hover:text-accent-hover"
             >← Terug naar de catalogus</a
         >
@@ -95,7 +95,7 @@
                     </div>
                 {:else}
                     <p class="mt-4 font-body text-sm text-ink-muted">
-                        <a href="/login" class="text-accent underline hover:text-accent-hover"
+                        <a href="/inloggen" class="text-accent underline hover:text-accent-hover"
                             >Log in</a
                         > om dit boek aan je leeslijst toe te voegen.
                     </p>

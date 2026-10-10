@@ -18,7 +18,7 @@
             : {
                   eyebrow: 'Welkom!',
                   title: 'Hallo! Klaar om je leeslijst te starten?',
-                  href: '/register',
+                  href: '/registreren',
                   cta: 'Maak een account aan'
               }
     );
@@ -83,7 +83,7 @@
                     {hero.cta}
                 </a>
                 <a
-                    href="/books"
+                    href="/boeken"
                     class="border border-accent p-2 text-center text-ink transition duration-150 hover:cursor-pointer hover:border-accent-hover hover:bg-tan-bg"
                 >
                     Blader door de catalogus

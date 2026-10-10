@@ -33,7 +33,7 @@ Legend: ✅ done · 🟡 partly done · ❌ not done
 - ✅ Required fields are marked with `*`, and the server rejects an incomplete profile (`src/routes/leesprofiel/+page.server.ts:30-35`).
 - ✅ You get a confirmation after saving, then a redirect.
 - ✅ Unsaved answers are kept as a per-user draft in localStorage, for new **and** existing profiles. A draft is only restored when it was based on the profile that's currently saved; outdated drafts are ignored. A notice with a "Wijzigingen weggooien" button shows when a draft is restored.
-- ✅ The page redirects logged-out users to `/login`.
+- ✅ The page redirects logged-out users to `/inloggen`.
 
 ### FR2 – View and change the profile ✅
 
@@ -60,7 +60,7 @@ The catalogue data is too thin for real matching: 183 items, no genres, only ~40
 ### FR4 – Browse the catalogue ✅ (length simulated)
 
 - ✅ Pagination with first/previous/next/last buttons, showing "Resultaten X-Y van de Z" and the total number of results.
-- ✅ Filters on `/books`: title search, level (`2F`/`3F`/`3F+`), themes (book `tags`, list from `/books/genres`) and length.
+- ✅ Filters on `/boeken`: title search, level (`2F`/`3F`/`3F+`), themes (book `tags`, list from `/books/genres`) and length.
     - There is no length in the data, so length maps onto `materialType`, the same way as in `AdviceService` (Kort = articles/blogs, Middel = magazines/poetry, Lang = books).
     - There are no genres in the data either, so themes/tags cover both "genre" and "topic".
 - ✅ Filters combine (AND between groups, OR within a group), live in the URL (shareable, survive pagination) and reset with "Filters wissen". A new filter starts at page 1.
@@ -70,24 +70,24 @@ The catalogue data is too thin for real matching: 183 items, no genres, only ~40
 
 ### FR5 – Keep a reading list ✅
 
-- ✅ You can add books from the catalogue (`/books`) and from the advice page (`/advies`) with the heart button. The heart only shows for logged-in users.
+- ✅ You can add books from the catalogue (`/boeken`) and from the advice page (`/advies`) with the heart button. The heart only shows for logged-in users.
 - ✅ Read status per book: "Nog niet gelezen", "Bezig" or "Gelezen" (`NotRead`/`Reading`/`Read`), stored in the reading list's `status` map and set through `PATCH /readinglist`.
-    - `ReadingStatusPicker` (a radio group in a `<fieldset>`) sits on every card in `/Leeslijst`. It updates right away and rolls back if the request fails.
-    - `/Leeslijst` can be filtered by status (with counts) and shows "X van Y gelezen".
+    - `ReadingStatusPicker` (a radio group in a `<fieldset>`) sits on every card in `/leeslijst`. It updates right away and rolls back if the request fails.
+    - `/leeslijst` can be filtered by status (with counts) and shows "X van Y gelezen".
 - ✅ Removing a book from the list also drops its status (backend).
 - ✅ The list is personal (filtered on `userID`); linked teachers can view it and add to it (see FR6).
-- The client calls live in `$lib/readingList.ts`, shared by `/books`, `/advies` and `/Leeslijst`.
+- The client calls live in `$lib/readingList.ts`, shared by `/boeken`, `/advies` and `/leeslijst`.
 
 ### FR6 – Teachers can view reading lists ✅
 
-Backend: `fastify-backend/src/Controllers/StudentTeacherController.ts`, guarded with `requireRole` (`Services/RoleService.ts`). New accounts get the student role. An admin makes accounts teachers on `/admin` (`GET /users`, `PUT /users/:id/role`); admins themselves are made with `npm run assign:role -- <user> admin`.
+Backend: `fastify-backend/src/Controllers/StudentTeacherController.ts`, guarded with `requireRole` (`Services/RoleService.ts`). New accounts get the student role. An admin makes accounts teachers on `/beheer` (`GET /users`, `PUT /users/:id/role`); admins themselves are made with `npm run assign:role -- <user> admin`.
 
 - ✅ The student links themselves to a teacher on `/docenten` (`GET /teachers`, `POST|DELETE /teachers/:id/link`), as form actions, so it also works without JS.
 - ✅ `/leerlingen` shows the teacher's linked students who filled in a reading profile, with a summary of that profile (`GET /students`).
 - ✅ `/leerlingen/[id]` shows a linked student's reading list with the read status per book (read-only), and their profile. Unlinked students give a 404 from the backend, and the page shows that as an error.
 - ✅ On that page the teacher searches the catalogue by title and adds an item with "Toevoegen" (`POST /students/:id/readinglist`). Books already on the list show "Staat al op de lijst".
 - ✅ The backend enforces roles: student routes need `student`, teacher routes need `teacher` (403 otherwise), and the teacher routes only work for linked students.
-- ✅ The frontend guards both pages (`$lib/server/auth.ts`): logged out → `/login`, wrong role → `/` (NFR6). The nav shows "Docenten" to students and "Leerlingen" to teachers.
+- ✅ The frontend guards both pages (`$lib/server/auth.ts`): logged out → `/inloggen`, wrong role → `/` (NFR6). The nav shows "Docenten" to students and "Leerlingen" to teachers.
 
 ---
 
@@ -97,8 +97,8 @@ Backend: `fastify-backend/src/Controllers/StudentTeacherController.ts`, guarded 
 
 - ✅ Reusable components in `src/lib/components`, every repeated piece of UI has one:
     - Books: `BookCard`, `BookCover`, `BookTags` (level/genre/tag badges, shared by `BookCard` and the homepage carousel), `Heart`.
-    - Forms: `ChoiceGroup` (a `<fieldset>` of radio/checkbox pills, used by `/leesprofiel`, the `/books` filters and the `/Leeslijst` status tabs), `ReadingStatusPicker`, `SearchForm` (`/admin`, `/leerlingen/[id]`), `AuthForm` + `FormField` (`/login`, `/register`).
-    - Layout: `PageHeader`, `EmptyState`, `CallToAction` (`/advies`), `Pagination` (`/books`), `Avatar`, `Badge` (tags, reading status, roles, "Gekoppeld"), `ReadingProfileSummary`.
+    - Forms: `ChoiceGroup` (a `<fieldset>` of radio/checkbox pills, used by `/leesprofiel`, the `/boeken` filters and the `/leeslijst` status tabs), `ReadingStatusPicker`, `SearchForm` (`/beheer`, `/leerlingen/[id]`), `AuthForm` + `FormField` (`/inloggen`, `/registreren`).
+    - Layout: `PageHeader`, `EmptyState`, `CallToAction` (`/advies`), `Pagination` (`/boeken`), `Avatar`, `Badge` (tags, reading status, roles, "Gekoppeld"), `ReadingProfileSummary`.
 - ✅ The duplicates are gone: the 10 copy-pasted pills on `/leesprofiel`, the homepage hero (one block, text depends on login), the 4 call-to-actions on `/advies` (one responsive component), the pagination buttons, and the carousel tag pills.
 - ✅ Shared types live in `$lib/types` (`Book`, `ReadingProfile`, `ReadingList`, `Role`, ...). The inline `Book` type and the profile type on `/leesprofiel` use them now, and `App.User.role` is the `Role` type.
 - ✅ The SvelteKit server-load → backend pattern is used consistently, client calls go through `$lib/readingList.ts`.
@@ -138,20 +138,20 @@ Backend: `fastify-backend/src/Controllers/StudentTeacherController.ts`, guarded 
     - 2.5.3 Label in Name: the Koppelen, Toevoegen and Maak docent/student buttons start their accessible name with the visible text (extra context in an `sr-only` span).
     - 3.3.2 Labels or Instructions: `/leesprofiel` explains the `*`, and required `ChoiceGroup` legends say "(verplicht)" to screen readers.
     - 1.4.3/1.4.11 Contrast: author text on book covers, "Waarom dit bij jou past", the profile submit button on hover, the carousel dots and input borders (`border-border-strong`).
-    - 1.4.10 Reflow: the pagination wraps on narrow screens, so `/books` no longer scrolls sideways at 320px.
+    - 1.4.10 Reflow: the pagination wraps on narrow screens, so `/boeken` no longer scrolls sideways at 320px.
     - 1.4.13 Content on Hover or Focus: the account menu opens on click, has `aria-expanded`, and closes with Escape or a click outside it.
-    - 3.1.2 / 2.4.6: no English labels left ("Submit", "carousel"), and `/books` and `/advies` have an `<h1>`.
+    - 3.1.2 / 2.4.6: no English labels left ("Submit", "carousel"), and `/boeken` and `/advies` have an `<h1>`.
 
 ### NFR6 – Authentication ✅
 
 - ✅ The backend signs and checks JWTs, the cookie is `httpOnly`, and protected routes check `req.user`.
 - ✅ Role-based authorization on the student–teacher routes (`requireRole`, see FR6).
-- ✅ Admin panel on `/admin` (admin only): search accounts and switch them between student and teacher. Admins can't change their own role (backend), and admin roles aren't changeable from the UI.
+- ✅ Admin panel on `/beheer` (admin only): search accounts and switch them between student and teacher. Admins can't change their own role (backend), and admin roles aren't changeable from the UI.
 - Frontend:
-    - ✅ `/Leeslijst` redirects to `/login`.
-    - ✅ `/leesprofiel` redirects to `/login`.
-    - ✅ Registration on `/register`.
-    - ✅ "Uitloggen" in the account menu posts to `/logout`, which deletes the `jwt` cookie, and then reloads the page data (`refreshAll`).
+    - ✅ `/leeslijst` redirects to `/inloggen`.
+    - ✅ `/leesprofiel` redirects to `/inloggen`.
+    - ✅ Registration on `/registreren`.
+    - ✅ "Uitloggen" in the account menu posts to `/uitloggen`, which deletes the `jwt` cookie, and then reloads the page data (`refreshAll`).
 
 ### NFR7 – Appropriate data storage ✅
 
@@ -165,7 +165,7 @@ Backend: `fastify-backend/src/Controllers/StudentTeacherController.ts`, guarded 
 
 1. ~~**FR3** – matching with a reason per book.~~ Done.
 2. ~~**FR5** – add a read status, and the heart on the advice page.~~ Done (the reading list is still in MongoDB, see NFR7).
-3. ~~**FR4** – filters on `/books`, in both backend and frontend, plus the total result count.~~ Done.
+3. ~~**FR4** – filters on `/boeken`, in both backend and frontend, plus the total result count.~~ Done.
 4. ~~**FR6 + role checks**~~ Done.
 5. Smaller fixes:
     - [x] NFR5: Heart → `<button>`, carousel pause, fieldsets, `lang="nl"`
@@ -176,5 +176,5 @@ Backend: `fastify-backend/src/Controllers/StudentTeacherController.ts`, guarded 
 
 ## TODO
 
-- [x] Skeleton loading: a progress bar on every client-side navigation, `/advies` streams the advice behind `BookCardSkeleton`s, `/books` stays server rendered (SEO) and shows skeletons while filtering/paginating.
+- [x] Skeleton loading: a progress bar on every client-side navigation, `/advies` streams the advice behind `BookCardSkeleton`s, `/boeken` stays server rendered (SEO) and shows skeletons while filtering/paginating.
 - [x] A universal error page (`src/routes/+error.svelte` + `ErrorState`): Dutch title and explanation per status (400/401/403/404/5xx), the specific message from `error()` when it adds something, and fitting actions (inloggen, opnieuw proberen, homepage, catalogus). Unexpected errors are logged in `handleError` (`hooks.server.ts`/`hooks.client.ts`), a backend that is down no longer crashes every page in `handle`, and `src/error.html` is the last-resort fallback.

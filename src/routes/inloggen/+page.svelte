@@ -42,7 +42,7 @@
 
     {#snippet footer()}
         Nog geen account?
-        <a href="/register" class="font-display font-bold text-accent hover:underline"
+        <a href="/registreren" class="font-display font-bold text-accent hover:underline"
             >Registreer je hier</a
         >
     {/snippet}

@@ -70,7 +70,7 @@
     <div class="mt-6 flex flex-wrap justify-center gap-3 font-body font-semibold">
         {#if status === 401}
             <a
-                href="/login"
+                href="/inloggen"
                 class="rounded-md bg-accent px-4 py-2 text-ivory hover:bg-accent-hover"
             >
                 Inloggen
@@ -94,7 +94,7 @@
             Naar de homepage
         </a>
         <a
-            href="/books"
+            href="/boeken"
             class="rounded-md border border-border-soft px-4 py-2 text-ink hover:bg-ivory"
         >
             Bekijk de catalogus

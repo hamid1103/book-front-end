@@ -3,7 +3,7 @@
     import { fly } from 'svelte/transition';
     import type { Snippet } from 'svelte';
 
-    // Shared card for /login and /register: title, error alert, the fields (children) and a footer link
+    // Shared card for /inloggen and /registreren: title, error alert, the fields (children) and a footer link
     let {
         title,
         subtitle,

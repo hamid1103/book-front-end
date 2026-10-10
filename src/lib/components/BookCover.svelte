@@ -14,7 +14,7 @@
 </script>
 
 <a
-    href="/books/{book._id}"
+    href="/boeken/{book._id}"
     class="flex shrink-0 flex-col justify-between rounded-l-sm rounded-r-md border-l-8 border-black/20 p-2 shadow-md {coverColor(
         book._id
     )}

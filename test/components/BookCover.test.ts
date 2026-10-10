@@ -7,7 +7,7 @@ describe('BookCover', () => {
     it('links to the book page and shows title and author', () => {
         render(BookCover, { book });
         const link = screen.getByRole('link');
-        expect(link).toHaveAttribute('href', '/books/abc123');
+        expect(link).toHaveAttribute('href', '/boeken/abc123');
         expect(link).toHaveTextContent('De Avonden');
         expect(link).toHaveTextContent('Gerard Reve');
     });
