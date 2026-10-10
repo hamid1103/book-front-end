@@ -26,7 +26,7 @@
         class="w-full rounded-md border-2 bg-ivory px-3 py-2 font-body text-ink transition-colors placeholder:text-ink-muted/70 focus:ring-2 focus:ring-offset-0
                {invalid
             ? 'border-accent focus:border-accent focus:ring-accent/30'
-            : 'border-border-soft focus:border-accent-sage focus:ring-accent-sage/30'}"
+            : 'border-border-strong focus:border-accent-sage focus:ring-accent-sage/30'}"
         {...rest}
     />
     {#if hint}

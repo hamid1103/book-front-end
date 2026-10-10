@@ -52,7 +52,9 @@
 
         {#if book.motivation}
             <div class="mt-3 rounded-md border-l-4 border-accent bg-tan-bg px-3 py-2">
-                <p class="font-display text-xs font-bold text-accent">Waarom dit bij jou past</p>
+                <p class="font-display text-xs font-bold text-accent-hover">
+                    Waarom dit bij jou past
+                </p>
                 <p class="font-body text-sm text-ink-soft">{book.motivation}</p>
             </div>
         {/if}

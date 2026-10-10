@@ -19,7 +19,7 @@ Legend: ✅ done · 🟡 partly done · ❌ not done
 | NFR2 – README                             | ✅                      |
 | NFR3 – Automated tests                    | ✅                      |
 | NFR4 – Responsive without losing features | ✅                      |
-| NFR5 – WCAG level A                       | ✅                      |
+| NFR5 – WCAG level A                       | ✅ (and AA)             |
 | NFR6 – Authentication                     | ✅                      |
 | NFR7 – Appropriate data storage           | ✅                      |
 
@@ -126,13 +126,21 @@ Backend: `fastify-backend/src/Controllers/StudentTeacherController.ts`, guarded 
 - ✅ The "Bekijk mijn advies" and "Vul je leesprofiel in" buttons on the homepage are `<button>`s with no action, so they do nothing on any device.
 - ✅ `/leesprofiel` doesn't appear in the nav. You can only reach it from the advice page.
 
-### NFR5 – WCAG level A ✅ (several clear failures)
+### NFR5 – WCAG level A ✅ (and AA)
 
 - ✅ **The heart** (`src/lib/components/Heart.svelte`) is now a `<button>` with an accessible name and `aria-pressed`.
 - ✅ **The carousel** has a pause/start button and pauses on hover, keyboard focus and touch (2.2.2 Pause, Stop, Hide). It starts paused with `prefers-reduced-motion`, and hidden slides are `inert`.
 - ✅ **The radio/checkbox groups** all use `ChoiceGroup`, a `<fieldset>` with a `<legend>`.
 - ✅ **The page language**: `src/app.html` has `lang="en"` but the content is Dutch. Fails 3.1.1.
 - ✅ The `sr-only` inputs show a focus ring on their pill (`has-focus-visible`).
+- ✅ **Audit 2026-10-09** (code review + axe-core on the public pages at 1280px and 320px, 0 violations for WCAG 2.1 A/AA):
+    - 2.4.1 Bypass Blocks: "Naar de inhoud" skip link and a `<main>` landmark in `+layout.svelte`.
+    - 2.5.3 Label in Name: the Koppelen, Toevoegen and Maak docent/student buttons start their accessible name with the visible text (extra context in an `sr-only` span).
+    - 3.3.2 Labels or Instructions: `/leesprofiel` explains the `*`, and required `ChoiceGroup` legends say "(verplicht)" to screen readers.
+    - 1.4.3/1.4.11 Contrast: author text on book covers, "Waarom dit bij jou past", the profile submit button on hover, the carousel dots and input borders (`border-border-strong`).
+    - 1.4.10 Reflow: the pagination wraps on narrow screens, so `/books` no longer scrolls sideways at 320px.
+    - 1.4.13 Content on Hover or Focus: the account menu opens on click, has `aria-expanded`, and closes with Escape or a click outside it.
+    - 3.1.2 / 2.4.6: no English labels left ("Submit", "carousel"), and `/books` and `/advies` have an `<h1>`.
 
 ### NFR6 – Authentication ✅
 
@@ -169,4 +177,4 @@ Backend: `fastify-backend/src/Controllers/StudentTeacherController.ts`, guarded 
 ## TODO
 
 - [x] Skeleton loading: a progress bar on every client-side navigation, `/advies` streams the advice behind `BookCardSkeleton`s, `/books` stays server rendered (SEO) and shows skeletons while filtering/paginating.
-- [ ] A universal error page (`src/routes/+error.svelte`).
+- [x] A universal error page (`src/routes/+error.svelte` + `ErrorState`): Dutch title and explanation per status (400/401/403/404/5xx), the specific message from `error()` when it adds something, and fitting actions (inloggen, opnieuw proberen, homepage, catalogus). Unexpected errors are logged in `handleError` (`hooks.server.ts`/`hooks.client.ts`), a backend that is down no longer crashes every page in `handle`, and `src/error.html` is the last-resort fallback.

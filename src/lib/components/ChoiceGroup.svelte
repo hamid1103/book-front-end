@@ -53,7 +53,9 @@
             ? 'sr-only'
             : `float-left w-full ${size === 'lg' ? 'mb-3 font-body text-accent md:text-2xl md:font-bold' : 'mb-2 font-display font-bold text-ink'}`}
     >
-        {legend}{#if required}<span class="text-xl text-accent" aria-hidden="true">*</span>{/if}
+        {legend}{#if required}<span class="text-xl text-accent" aria-hidden="true">*</span><span
+                class="sr-only">(verplicht)</span
+            >{/if}
     </legend>
     <div class="clear-both flex flex-wrap gap-2">
         {#each options as option (option.value)}

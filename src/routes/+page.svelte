@@ -64,6 +64,10 @@
     });
 </script>
 
+<svelte:head>
+    <title>Bookie · Leesadvies dat bij je past</title>
+</svelte:head>
+
 <div class="flex h-full w-full flex-col items-center space-y-5 p-4">
     <div
         class="flex w-full rounded-md border-2 border-accent bg-surface p-2 text-ink md:h-64 md:w-9/12 md:p-4"
@@ -89,7 +93,7 @@
         <!-- Decorative image, hidden on mobile to save space -->
         <div class="hidden h-full w-1/2 flex-col justify-center p-2 md:flex">
             <div class="flex h-11/12 items-center justify-center rounded-lg bg-tan-bg">
-                <img src="/HomeBookImage.png" alt="Plaatje van een leeg boek." />
+                <img src="/HomeBookImage.png" alt="" />
             </div>
         </div>
     </div>
@@ -97,7 +101,7 @@
     <div
         class="relative h-80 w-full overflow-hidden rounded-sm md:w-1/2"
         role="region"
-        aria-roledescription="carousel"
+        aria-roledescription="carrousel"
         aria-label="Boekadvies"
         onmouseenter={() => (hovered = true)}
         onmouseleave={() => (hovered = false)}
@@ -117,7 +121,7 @@
                 <div
                     class="flex h-full w-full shrink-0 items-center justify-center bg-surface p-2"
                     role="group"
-                    aria-roledescription="slide"
+                    aria-roledescription="dia"
                     aria-label="{i + 1} van {advice.length}"
                     inert={i !== current}
                 >
@@ -125,7 +129,7 @@
                         <BookCover {book} size="lg" />
                         <div class="flex min-w-0 flex-col justify-start font-display">
                             <h2 class="font-display text-lg md:text-2xl">
-                                Heb je deze al geprobeert?
+                                Heb je deze al geprobeerd?
                             </h2>
                             <span class="line-clamp-[10] text-sm md:line-clamp-none md:text-base"
                                 >Beschrijving: {book.description}</span
@@ -160,8 +164,8 @@
             <button
                 class="absolute right-2 bottom-2 h-8 w-8 cursor-pointer rounded-full border-2 border-accent bg-ivory/80 font-bold text-ink hover:bg-ivory focus-visible:ring-2 focus-visible:ring-accent"
                 onclick={() => (stopped = !stopped)}
-                aria-label={stopped ? 'Start carousel' : 'Pauzeer carousel'}
-                title={stopped ? 'Start carousel' : 'Pauzeer carousel'}
+                aria-label={stopped ? 'Start carrousel' : 'Pauzeer carrousel'}
+                title={stopped ? 'Start carrousel' : 'Pauzeer carrousel'}
             >
                 <span aria-hidden="true">{stopped ? '▶' : '⏸'}</span>
             </button>
@@ -170,11 +174,12 @@
         <div class="absolute bottom-2 left-1/2 flex -translate-x-1/2 gap-2">
             {#each advice as book, i (book._id)}
                 <button
-                    class="h-2.5 w-2.5 cursor-pointer rounded-full transition {i === current
-                        ? 'bg-ivory'
-                        : 'bg-ivory/50'}"
+                    class="h-2.5 w-2.5 cursor-pointer rounded-full border-2 border-accent transition {i ===
+                    current
+                        ? 'bg-accent'
+                        : 'bg-surface'}"
                     onclick={() => (current = i)}
-                    aria-label="Ga naar slide {i + 1}"
+                    aria-label="Ga naar dia {i + 1}"
                     aria-current={i === current ? 'true' : undefined}
                 ></button>
             {/each}

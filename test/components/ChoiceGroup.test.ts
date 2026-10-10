@@ -22,6 +22,18 @@ describe('ChoiceGroup', () => {
         expect(screen.getByRole('radio', { name: /B1/ })).toBeChecked();
     });
 
+    it('tells screen readers a required group is required', () => {
+        render(ChoiceGroup, {
+            legend: 'Niveau',
+            name: 'level',
+            type: 'radio',
+            options,
+            value: 'A2',
+            required: true
+        });
+        expect(screen.getByRole('group', { name: 'Niveau(verplicht)' })).toBeInTheDocument();
+    });
+
     it('shows the count', () => {
         render(ChoiceGroup, {
             legend: 'Niveau',

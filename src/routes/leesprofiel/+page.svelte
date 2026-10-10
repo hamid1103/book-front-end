@@ -116,6 +116,10 @@
     });
 </script>
 
+<svelte:head>
+    <title>Mijn leesprofiel · Bookie</title>
+</svelte:head>
+
 <div class="flex h-full w-full flex-col p-1 md:space-y-2 md:p-10">
     <h1 class="font-display text-2xl font-bold text-ink md:text-4xl">
         Vertel ons wat je graag leest
@@ -124,6 +128,10 @@
         >We gebruiken dit om leesadvies op maat te geven. Dit duurt ongeveer 2 minuten. Je
         antwoorden worden automatisch bewaard, ook als je per ongeluk wegnavigeert.</span
     >
+    <p class="font-body text-ink-soft">
+        Vragen met een <span class="font-bold text-accent">*</span> zijn verplicht. Kies bij Favoriete
+        Thema's minstens één thema.
+    </p>
     <form
         class="flex h-full w-full flex-col space-y-3"
         method="POST"
@@ -224,9 +232,9 @@
             <button
                 type="submit"
                 disabled={submitting || success}
-                class="w-1/4 cursor-pointer border-2 border-accent bg-surface p-3 font-body text-xl font-bold transition duration-150 hover:border-accent-hover hover:bg-accent-hover
+                class="w-1/4 cursor-pointer border-2 border-accent bg-surface p-3 font-body text-xl font-bold transition duration-150 hover:border-accent-hover hover:bg-accent-hover hover:text-white
             disabled:cursor-not-allowed disabled:opacity-50 md:w-2/12 md:text-2xl"
-                >{submitting ? 'Bezig...' : 'Submit'}</button
+                >{submitting ? 'Bezig...' : 'Opslaan'}</button
             >
         </div>
     </form>

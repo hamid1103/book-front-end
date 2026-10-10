@@ -8,6 +8,7 @@
     import BookCardSkeleton from '$lib/components/BookCardSkeleton.svelte';
     import ChoiceGroup, { type Choice } from '$lib/components/ChoiceGroup.svelte';
     import Pagination from '$lib/components/Pagination.svelte';
+    import PageHeader from '$lib/components/PageHeader.svelte';
     import { toggleReadingListEntry } from '$lib/readingList';
     let { data }: PageProps = $props();
     // $derived (not $state) so these update when load reruns after goto
@@ -56,10 +57,17 @@
     }
 </script>
 
+<svelte:head>
+    <title>Catalogus · Bookie</title>
+</svelte:head>
+
 <div class="flex h-full w-full justify-center bg-ivory">
     <div
         class="flex h-fit w-full max-w-5xl flex-col items-center space-y-4 px-4 py-6 align-middle md:py-8"
     >
+        <div class="w-full">
+            <PageHeader eyebrow="Catalogus" title="Blader door alle boeken" />
+        </div>
         <!-- Plain GET form: works without JS, and SvelteKit turns it into a client-side navigation.
              Leaving `page` out means a new filter always starts at page 1 -->
         <form
@@ -82,7 +90,7 @@
                     type="search"
                     value={filters.q}
                     placeholder="Zoek op titel…"
-                    class="min-w-0 flex-1 rounded-md border-2 border-border-soft bg-ivory px-3 py-1.5 font-body text-ink focus:border-accent focus:ring-accent"
+                    class="min-w-0 flex-1 rounded-md border-2 border-border-strong bg-ivory px-3 py-1.5 font-body text-ink focus:border-accent focus:ring-accent"
                 />
                 <button
                     type="submit"

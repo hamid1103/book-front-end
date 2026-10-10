@@ -56,6 +56,10 @@
     }
 </script>
 
+<svelte:head>
+    <title>Mijn leeslijst · Bookie</title>
+</svelte:head>
+
 <div class="min-h-full w-full bg-ivory px-4 py-6 md:py-8">
     <div class="mx-auto max-w-5xl">
         <PageHeader eyebrow="Leeslijst" title="Jouw leeslijst"

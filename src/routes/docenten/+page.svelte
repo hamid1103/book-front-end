@@ -13,6 +13,10 @@
     let pending: number | null = $state(null);
 </script>
 
+<svelte:head>
+    <title>Docenten · Bookie</title>
+</svelte:head>
+
 <div class="min-h-full w-full bg-ivory px-4 py-6 md:py-8">
     <div class="mx-auto max-w-5xl">
         <PageHeader eyebrow="Docenten" title="Koppel je aan een docent"
@@ -72,14 +76,14 @@
                             <button
                                 type="submit"
                                 disabled={pending === teacher.id}
-                                aria-label="{teacher.linked
-                                    ? 'Ontkoppel van'
-                                    : 'Koppel aan'} {teacher.userName}"
                                 class="px-4 py-2 font-display transition duration-150 disabled:cursor-wait disabled:opacity-60 {teacher.linked
                                     ? 'border-2 border-border-soft text-ink-soft hover:border-accent hover:text-accent'
                                     : 'bg-accent text-white hover:bg-accent-hover'}"
                             >
-                                {teacher.linked ? 'Ontkoppelen' : 'Koppelen'}
+                                <!-- The name starts with the visible text, so voice control matches it (WCAG 2.5.3) -->
+                                {teacher.linked ? 'Ontkoppelen' : 'Koppelen'}<span class="sr-only"
+                                    >: {teacher.userName}</span
+                                >
                             </button>
                         </form>
                     </li>

@@ -25,7 +25,7 @@
             ? 'text-lg'
             : 'text-sm'}">{book.title}</span
     >
-    <span class="truncate font-body text-ivory/80 {size === 'lg' ? 'text-sm' : 'text-[10px]'}"
+    <span class="truncate font-body text-ivory {size === 'lg' ? 'text-sm' : 'text-[10px]'}"
         >{book.author}</span
     >
 </a>

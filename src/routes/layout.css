@@ -17,7 +17,8 @@
     --color-ink-muted: #6b6355; /* secondary text */
     --color-ink-faint: #948c7c; /* tertiary / labels */
     --color-border: #e7dfd2; /* card borders */
-    --color-border-soft: #ddd4c4; /* input / chip borders */
+    --color-border-soft: #ddd4c4; /* chip borders */
+    --color-border-strong: #948c7c; /* input borders, 3:1 against white and ivory (WCAG 1.4.11) */
 
     /* Primary accent (terracotta) */
     --color-accent: #b5502e;

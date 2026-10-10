@@ -44,12 +44,13 @@
     {/each}
 {/snippet}
 
+<!-- On narrow screens the summary gets its own row above the buttons, so nothing scrolls sideways (WCAG 1.4.10) -->
 <nav
     aria-label="Paginering"
-    class="sticky bottom-0 z-0 flex h-10 w-full items-center justify-between gap-1 rounded-md border-2 border-border bg-surface px-1 text-sm md:text-base"
+    class="sticky bottom-0 z-0 flex w-full flex-wrap items-center justify-between gap-1 rounded-md border-2 border-border bg-surface p-1 text-sm sm:h-10 sm:flex-nowrap sm:py-0 md:text-base"
 >
     <div class="flex gap-1">{@render buttons(before)}</div>
-    <span class="font-display whitespace-nowrap"
+    <span class="order-first w-full text-center font-display sm:order-none sm:w-auto"
         >Resultaten {firstResult}-{lastResult} van de {total}</span
     >
     <div class="flex gap-1">{@render buttons(after)}</div>

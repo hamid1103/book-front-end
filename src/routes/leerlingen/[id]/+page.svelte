@@ -28,6 +28,10 @@
     let pending: string | null = $state(null);
 </script>
 
+<svelte:head>
+    <title>Leeslijst van {student.userName} · Bookie</title>
+</svelte:head>
+
 <div class="min-h-full w-full bg-ivory px-4 py-6 md:py-8">
     <div class="mx-auto max-w-5xl">
         <a
@@ -157,10 +161,11 @@
                                                 <button
                                                     type="submit"
                                                     disabled={pending === book._id}
-                                                    aria-label="Voeg {book.title} toe aan de leeslijst van {student.userName}"
                                                     class="shrink-0 border-2 border-accent px-2 py-1 font-display text-xs text-accent transition duration-150 hover:bg-accent hover:text-white disabled:cursor-wait disabled:opacity-60"
                                                 >
-                                                    Toevoegen
+                                                    Toevoegen<span class="sr-only"
+                                                        >: {book.title}</span
+                                                    >
                                                 </button>
                                             </form>
                                         {/if}

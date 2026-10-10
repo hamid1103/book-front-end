@@ -39,7 +39,7 @@
 </script>
 
 <svelte:head>
-    <title>{book.title}</title>
+    <title>{book.title} · Bookie</title>
 </svelte:head>
 
 <div class="min-h-full w-full bg-ivory px-4 py-6 md:py-8">

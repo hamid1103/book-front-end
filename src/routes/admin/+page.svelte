@@ -26,6 +26,10 @@
     let pending: number | null = $state(null);
 </script>
 
+<svelte:head>
+    <title>Beheer · Bookie</title>
+</svelte:head>
+
 <div class="min-h-full w-full bg-ivory px-4 py-6 md:py-8">
     <div class="mx-auto max-w-5xl">
         <PageHeader eyebrow="Beheer" title="Accounts en rollen"
@@ -95,15 +99,16 @@
                                     <button
                                         type="submit"
                                         disabled={pending === account.id}
-                                        aria-label="Maak {account.userName} {newRole === 'teacher'
-                                            ? 'docent'
-                                            : 'student'}"
                                         class="px-3 py-1.5 font-display text-sm transition duration-150 disabled:cursor-wait disabled:opacity-60 {newRole ===
                                         'teacher'
                                             ? 'bg-accent text-white hover:bg-accent-hover'
                                             : 'border-2 border-border-soft text-ink-soft hover:border-accent hover:text-accent'}"
                                     >
-                                        {newRole === 'teacher' ? 'Maak docent' : 'Maak student'}
+                                        {newRole === 'teacher'
+                                            ? 'Maak docent'
+                                            : 'Maak student'}<span class="sr-only"
+                                            >: {account.userName}</span
+                                        >
                                     </button>
                                 </form>
                             {/if}

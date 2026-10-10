@@ -30,7 +30,7 @@
         type="search"
         {value}
         {placeholder}
-        class="min-w-0 flex-1 rounded-md border-2 border-border-soft bg-ivory px-3 py-1.5 font-body text-sm focus:border-accent focus:ring-0"
+        class="min-w-0 flex-1 rounded-md border-2 border-border-strong bg-ivory px-3 py-1.5 font-body text-sm focus:border-accent focus:ring-0"
     />
     <button
         type="submit"

@@ -1,0 +1,42 @@
+<!doctype html>
+<!-- Last-resort page, used when even the layout fails to render (+error.svelte can't be shown then) -->
+<html lang="nl">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Er ging iets mis · Bookie</title>
+    </head>
+    <body
+        style="
+            margin: 0;
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            padding: 16px;
+            box-sizing: border-box;
+            background: #faf6ef;
+            color: #2a2620;
+            font-family: system-ui, sans-serif;
+            text-align: center;
+        "
+    >
+        <main>
+            <p
+                style="
+                    margin: 0;
+                    font:
+                        bold 4rem Georgia,
+                        serif;
+                    color: #b5502e;
+                "
+            >
+                %sveltekit.status%
+            </p>
+            <h1 style="font-family: Georgia, serif">Er ging iets mis</h1>
+            <p style="color: #6b6355">
+                De pagina kon niet worden geladen. Probeer het over een paar minuten opnieuw.
+            </p>
+            <a href="/" style="color: #b5502e; font-weight: 600">Naar de homepage</a>
+        </main>
+    </body>
+</html>

@@ -10,13 +10,14 @@
     // Pages that need a login redirect to /login from their load
     const Uitloggen = async () => {
         await fetch('/logout', { method: 'POST' });
+        menuOpen = false;
         await refreshAll();
     };
 
     // Students link themselves to a teacher, teachers see their linked students (FR6)
     let links = $derived([
         { href: '/', label: 'Home' },
-        { href: '/books', label: 'Catalogue' },
+        { href: '/books', label: 'Catalogus' },
         { href: '/Leeslijst', label: 'Leeslijst' },
         { href: '/advies', label: 'Advies' },
         ...(user?.role === 'student' ? [{ href: '/docenten', label: 'Docenten' }] : []),
@@ -25,12 +26,41 @@
     ]);
     const isActive = (href: string) =>
         href === '/' ? page.url.pathname === '/' : page.url.pathname.startsWith(href);
+
+    // Account menu: opens on click, closes with Escape, a click outside it, or when focus leaves it (WCAG 1.4.13)
+    let menuOpen = $state(false);
+    let menu: HTMLElement;
+    let menuButton: HTMLButtonElement;
+    function onMenuKeydown(e: KeyboardEvent) {
+        if (e.key !== 'Escape' || !menuOpen) return;
+        menuOpen = false;
+        menuButton.focus();
+    }
+    function onMenuFocusOut(e: FocusEvent) {
+        if (!menu.contains(e.relatedTarget as Node)) menuOpen = false;
+    }
+    function onWindowClick(e: MouseEvent) {
+        if (menuOpen && !menu.contains(e.target as Node)) menuOpen = false;
+    }
+    // Close the menu after navigating, e.g. to /login
+    $effect(() => {
+        void page.url.pathname;
+        menuOpen = false;
+    });
 </script>
+
+<svelte:window onclick={onWindowClick} />
 
 <svelte:head>
     <link rel="icon" href={favicon} />
 </svelte:head>
 <div class="h-full w-full">
+    <!-- First thing to tab to, skips the header (WCAG 2.4.1) -->
+    <a
+        href="#main"
+        class="sr-only z-50 rounded-md bg-accent px-4 py-2 font-body font-semibold text-white focus:not-sr-only focus:fixed focus:top-2 focus:left-2"
+        >Naar de inhoud</a
+    >
     {#if navigating.to}
         <!-- Above the sticky header (z-40) -->
         <div
@@ -44,7 +74,7 @@
         class="sticky top-0 z-40 flex w-full zoom-150 flex-wrap items-center justify-between gap-y-2 bg-ivory px-4 pt-3 pb-2 font-display md:h-20 md:flex-nowrap md:p-4"
     >
         <div class="flex items-center">
-            <img class="mt-1 h-6 w-6" src="/bookico.png" alt="logo" />
+            <img class="mt-1 h-6 w-6" src="/bookico.png" alt="" />
             <span class="text-xl font-bold">Bookie</span>
         </div>
         <nav
@@ -63,20 +93,30 @@
             {/each}
         </nav>
         <div class="flex items-center justify-end">
-            <div class="group relative">
-                <!-- A button so tapping it on touch screens opens the card via focus-within -->
+            <!-- The div only catches Escape and focus changes from the button and links inside it -->
+            <!-- svelte-ignore a11y_no_static_element_interactions -->
+            <div
+                class="relative"
+                bind:this={menu}
+                onkeydown={onMenuKeydown}
+                onfocusout={onMenuFocusOut}
+            >
                 <button
                     type="button"
+                    bind:this={menuButton}
+                    onclick={() => (menuOpen = !menuOpen)}
                     aria-label="Account"
+                    aria-expanded={menuOpen}
+                    aria-controls="account-menu"
                     class="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full font-bold text-ivory {user
                         ? 'bg-accent-blue'
                         : 'bg-accent-brown'}"
                 >
                     {user ? user.userName[0].toUpperCase() : '?'}
                 </button>
-                <!-- pt-2 bridges the gap so the card stays open while moving the mouse onto it -->
                 <div
-                    class="invisible absolute top-full right-0 z-50 translate-y-1 pt-2 opacity-0 transition group-focus-within:visible group-focus-within:translate-y-0 group-focus-within:opacity-100 group-hover:visible group-hover:translate-y-0 group-hover:opacity-100"
+                    id="account-menu"
+                    class="absolute top-full right-0 z-50 pt-2 {menuOpen ? '' : 'hidden'}"
                 >
                     <div
                         class="w-36 rounded-lg border border-border bg-surface p-4 font-body shadow-lg md:w-56"
@@ -104,7 +144,8 @@
             </div>
         </div>
     </header>
-    <div class="h-full w-full">
+    <!-- tabindex so the skip link moves focus here, not only the scroll position -->
+    <main id="main" tabindex="-1" class="h-full w-full outline-none">
         {@render children()}
-    </div>
+    </main>
 </div>

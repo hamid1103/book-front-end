@@ -3,6 +3,7 @@
     import BookCardSkeleton from '$lib/components/BookCardSkeleton.svelte';
     import CallToAction from '$lib/components/CallToAction.svelte';
     import EmptyState from '$lib/components/EmptyState.svelte';
+    import PageHeader from '$lib/components/PageHeader.svelte';
     import { toggleReadingListEntry } from '$lib/readingList';
 
     const { data } = $props();
@@ -16,8 +17,13 @@
     }
 </script>
 
+<svelte:head>
+    <title>Jouw leesadvies · Bookie</title>
+</svelte:head>
+
 <div class="flex h-full w-full flex-col items-center p-2 align-middle md:p-0">
-    <div class="w-full md:w-2/3">
+    <div class="w-full pt-4 md:w-2/3 md:pt-8">
+        <PageHeader eyebrow="Advies" title="Jouw leesadvies" />
         {#if data.loggedIn}
             <CallToAction
                 text="Wil je je leesprofiel aanpassen?"
@@ -25,7 +31,11 @@
                 linkLabel="Aanpassen"
             />
         {:else}
-            <CallToAction text="Wil je persoonlijk leesadvies?" href="/login" linkLabel="Account" />
+            <CallToAction
+                text="Wil je persoonlijk leesadvies?"
+                href="/login"
+                linkLabel="Inloggen"
+            />
         {/if}
     </div>
 
