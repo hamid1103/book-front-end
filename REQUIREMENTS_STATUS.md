@@ -1,6 +1,8 @@
+> AI Generated Documentation made in conversation with user Hamid (Corvo). Used for tracking project progress and documentation purposses.
+
 # Requirements status – LU1 Proof of Concept
 
-Checked against _Opdracht LU1 – Proof of Concept v1.2_ on 2026-10-04.
+Checked against _Opdracht LU1 – Proof of Concept v1.2_ on 2026-10-04, last updated 2026-10-10.
 Covers this frontend (`bookfrontend`) and the backend it talks to (`../fastify-backend`).
 
 Legend: ✅ done · 🟡 partly done · ❌ not done
@@ -102,7 +104,7 @@ Backend: `fastify-backend/src/Controllers/StudentTeacherController.ts`, guarded 
 - ✅ The duplicates are gone: the 10 copy-pasted pills on `/leesprofiel`, the homepage hero (one block, text depends on login), the 4 call-to-actions on `/advies` (one responsive component), the pagination buttons, and the carousel tag pills.
 - ✅ Shared types live in `$lib/types` (`Book`, `ReadingProfile`, `ReadingList`, `Role`, ...). The inline `Book` type and the profile type on `/leesprofiel` use them now, and `App.User.role` is the `Role` type.
 - ✅ The SvelteKit server-load → backend pattern is used consistently, client calls go through `$lib/readingList.ts`.
-- `src/lib/GeneralState.svelte.ts` isn't used anymore (the homepage reads the user from the layout data) and can be deleted.
+- ✅ The unused `src/lib/GeneralState.svelte.ts` has been removed; the homepage reads the user from the layout data.
 
 ### NFR2 – README ✅
 
@@ -116,22 +118,27 @@ Backend: `fastify-backend/src/Controllers/StudentTeacherController.ts`, guarded 
 
 ### NFR3 – Automated tests ✅
 
-- There's no test runner (no Vitest) and no tests in either repo.
-- `fastify-backend/src/Services/AdviceService.ts` is pure and ready to be tested (e.g. empty profile, book without tags/level, `amount` larger than the catalogue).
+Results on 2026-10-10:
+
+- ✅ Frontend unit/component tests (Vitest + Testing Library, `test/`): 18 files, 52 tests, all passing (`npm test`).
+- ✅ Frontend end-to-end tests (Playwright, `e2e/`): auth, catalogue, reading list, reading profile, roles and home, on desktop and mobile, against a mocked backend. 101 passed, 1 skipped (`npm run test:e2e`).
+- ✅ Backend tests (`node:test`, `fastify-backend`): `AdviceService`, `AuthService`, `RoleService`, the error classes, and the `/login`, `/register`, `/me` and admin routes through `app.inject()`. 68 tests, all passing (`npm test`).
+- ✅ CI (`.github/workflows/playwright.yml`) runs lint, `svelte-check` and the Playwright tests on every push and pull request.
 
 ### NFR4 – Responsive without losing features ✅
 
-- ✅ A lot of mobile work has been done (nav wraps, `md:` breakpoints everywhere).
-- ✅ The `/advies` content is a fixed `w-2/3` wide, which is cramped on a phone.
-- ✅ The "Bekijk mijn advies" and "Vul je leesprofiel in" buttons on the homepage are `<button>`s with no action, so they do nothing on any device.
-- ✅ `/leesprofiel` doesn't appear in the nav. You can only reach it from the advice page.
+- ✅ Mobile-first layout: the nav wraps and every page uses `md:` breakpoints.
+- ✅ `/advies` is full width on a phone and only `md:w-2/3` on larger screens.
+- ✅ The homepage call-to-action is a link: "Bekijk mijn advies" (`/advies`) when logged in, "Maak een account aan" (`/registreren`) otherwise.
+- 🟡 `/leesprofiel` still isn't in the navigation or account menu. You can only reach it through the call-to-action on `/advies`.
+- ✅ The Playwright suite runs every flow at a mobile viewport as well as desktop.
 
 ### NFR5 – WCAG level A ✅ (and AA)
 
 - ✅ **The heart** (`src/lib/components/Heart.svelte`) is now a `<button>` with an accessible name and `aria-pressed`.
 - ✅ **The carousel** has a pause/start button and pauses on hover, keyboard focus and touch (2.2.2 Pause, Stop, Hide). It starts paused with `prefers-reduced-motion`, and hidden slides are `inert`.
 - ✅ **The radio/checkbox groups** all use `ChoiceGroup`, a `<fieldset>` with a `<legend>`.
-- ✅ **The page language**: `src/app.html` has `lang="en"` but the content is Dutch. Fails 3.1.1.
+- ✅ **The page language**: `src/app.html` has `lang="nl"`, matching the Dutch content (3.1.1).
 - ✅ The `sr-only` inputs show a focus ring on their pill (`has-focus-visible`).
 - ✅ **Audit 2026-10-09** (code review + axe-core on the public pages at 1280px and 320px, 0 violations for WCAG 2.1 A/AA):
     - 2.4.1 Bypass Blocks: "Naar de inhoud" skip link and a `<main>` landmark in `+layout.svelte`.
@@ -157,7 +164,8 @@ Backend: `fastify-backend/src/Controllers/StudentTeacherController.ts`, guarded 
 
 - ✅ Users, roles and the student–teacher link are in Postgres with foreign keys (via Sequelize associations).
 - ✅ The book catalogue is in MongoDB.
-- ✅ The reading list and reading profile are also in MongoDB, linked by a plain `userID: Number` with no foreign key. The reading list is exactly the "transactional, strongly related" data the requirement says belongs in the relational database, especially once read status and teacher additions arrive. Either move it to Postgres (e.g. `reading_list_item(user_id FK, book_id, read bool)`), or be ready to explain the choice.
+- ✅ The reading list and reading profile are also in MongoDB, linked by a plain `userID: Number` with no foreign key. This is a deliberate choice, explained with its trade-offs in `fastify-backend/docs/DatabaseArchitecture.md` (one document per list, atomic `$addToSet`, a schema that can still change).
+- Still open: no unique index on `userID`, so nothing in the database enforces one list and one profile per user.
 
 ---
 

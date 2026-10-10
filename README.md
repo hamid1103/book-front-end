@@ -1,3 +1,5 @@
+> AI Generated Documentation made in conversation with user Hamid (Corvo). Used for tracking project progress and documentation purposses.
+
 # Bookie – frontend
 
 Bookie helps students find something to read. A student fills in a reading profile, gets reading advice with a reason per book, browses the catalogue and keeps a reading list. Teachers can view and add to the reading lists of their linked students, and an admin manages who is a teacher.
@@ -59,14 +61,16 @@ An admin can then make other accounts teachers on `/beheer`. A student links the
 
 ### Scripts
 
-| Command           | What it does                                                                                       |
-| ----------------- | -------------------------------------------------------------------------------------------------- |
-| `npm run dev`     | Development server with hot reload                                                                 |
-| `npm run check`   | Type-checks the TypeScript and Svelte files (`svelte-check`). Run this before you commit.          |
-| `npm run lint`    | Checks formatting (Prettier) and code rules (ESLint). Must pass before you commit; CI runs it too. |
-| `npm run format`  | Formats every file with Prettier                                                                   |
-| `npm run build`   | Production build into `build/` (Node adapter)                                                      |
-| `npm run preview` | Serves the production build locally                                                                |
+| Command            | What it does                                                                                       |
+| ------------------ | -------------------------------------------------------------------------------------------------- |
+| `npm run dev`      | Development server with hot reload                                                                 |
+| `npm test`         | Component and helper tests with Vitest                                                             |
+| `npm run test:e2e` | End-to-end tests with Playwright (starts the app against `e2e/mock-backend.ts`)                    |
+| `npm run check`    | Type-checks the TypeScript and Svelte files (`svelte-check`). Run this before you commit.          |
+| `npm run lint`     | Checks formatting (Prettier) and code rules (ESLint). Must pass before you commit; CI runs it too. |
+| `npm run format`   | Formats every file with Prettier                                                                   |
+| `npm run build`    | Production build into `build/` (Node adapter)                                                      |
+| `npm run preview`  | Serves the production build locally                                                                |
 
 ### Docker
 
@@ -86,27 +90,34 @@ docker run -p 5173:3000 -e BACKEND_URL=http://host.docker.internal:3000 -e ORIGI
 ```
 src/
 ├── app.d.ts              App.User and App.Locals (the logged-in user)
-├── app.html              HTML shell
-├── hooks.server.ts       Reads the JWT cookie on every request, adds it to backend calls
+├── app.html              HTML shell (lang="nl")
+├── error.html            Last-resort error page, used when the layout itself fails
+├── hooks.server.ts       Reads the JWT cookie on every request, adds it to backend calls, logs unexpected errors
+├── hooks.client.ts       Logs unexpected errors in the browser
 ├── lib/
 │   ├── components/       Reusable UI components (see below)
 │   ├── server/           Server-only code, can't be imported in the browser
 │   │   ├── api.ts        BACKEND_URL
 │   │   └── auth.ts       requireRole() page guard, session cookie, backend error messages
+│   ├── notice.svelte.ts  Global notice shown by the layout (e.g. a failed reading-list update)
 │   ├── readingList.ts    Browser-side calls for the reading list (via /api/leeslijst)
 │   └── types.ts          Shared types (Book, ReadingProfile, Role, …) and their Dutch labels
 └── routes/               One folder per page
-    ├── +layout.svelte    Header, navigation and account menu around every page
+    ├── +layout.svelte    Skip link, header, navigation and account menu around every page
     ├── +page.svelte      Homepage with the advice carousel
+    ├── +error.svelte     Error page for every status (uses ErrorState)
     ├── advies/           Reading advice (FR3)
-    ├── books/            Catalogue with filters and pagination (FR4), books/[slug] is one book
+    ├── boeken/           Catalogue with filters and pagination (FR4), boeken/[slug] is one book
     ├── leesprofiel/      Fill in and change the reading profile (FR1, FR2)
-    ├── Leeslijst/        Your reading list with read status (FR5)
+    ├── leeslijst/        Your reading list with read status (FR5)
     ├── docenten/         Students link themselves to a teacher (FR6)
     ├── leerlingen/       Teachers: linked students, and leerlingen/[id] for one student's list (FR6)
-    ├── admin/            Admin: make accounts teacher or student
-    ├── login/, register/ Authentication
+    ├── beheer/           Admin: make accounts teacher or student
+    ├── inloggen/, registreren/  Authentication
+    ├── uitloggen/        POST endpoint that deletes the jwt cookie
     └── api/leeslijst/    Small proxy so the browser can update the reading list without a page reload
+test/                     Vitest component and helper tests (npm test)
+e2e/                      Playwright end-to-end tests against a mocked backend (npm run test:e2e)
 static/                   Images and icons, served as-is
 ```
 
@@ -126,6 +137,8 @@ Everything in `src/lib/components` is reused on several pages. When you need a p
 | Component                                                | Used for                                                                                                    |
 | -------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
 | `BookCard`, `BookCover`, `BookTags`, `Heart`             | A book in a list: generated cover, title, description, level/genre/tag badges, reading-list heart           |
+| `BookCardSkeleton`                                       | Placeholder card while books are loading                                                                    |
+| `ErrorState`                                             | Dutch title, explanation and actions for an error status (used by `+error.svelte`)                          |
 | `ChoiceGroup`                                            | A `<fieldset>` of radio buttons or checkboxes shown as pills (profile form, catalogue filters, status tabs) |
 | `ReadingStatusPicker`                                    | "Nog niet gelezen / Bezig / Gelezen" on a reading-list card                                                 |
 | `ReadingProfileSummary`                                  | Short read-only view of a reading profile                                                                   |
